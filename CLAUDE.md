@@ -20,7 +20,7 @@ She loves **unicorns, animals, spy stuff, and a bit of hacking**.
    (pixel-accurate for the 72×40 OLED), plus a 🔊 "Say it" button (speechSynthesis), since she may not read every word.
    Check it with a headless Chrome screenshot, then open it in Chrome.
 3. She says a number. Record the pick in `IDEAS.md`.
-4. Build it, `make flash`, and tell her exactly where to look (OLED, http://petbot.local, the LED).
+4. Build it, `make flash`, and tell her exactly where to look (OLED, http://sparkle.local, the LED).
 5. Tweaks ("faster!", "more pink!") are the best part: do them quickly and flash again.
 6. When she's happy: give her a badge in `IDEAS.md` and commit (explain to the grown-up in plain words).
 
@@ -39,7 +39,7 @@ She loves **unicorns, animals, spy stuff, and a bit of hacking**.
 
 **Where things live**
 - `firmware/petbot_test/`: the robot's web menu + OLED unicorn. This is the main sketch her ideas go into.
-  Flash it with `make petbot-test`, then open http://petbot.local (or the IP on serial).
+  Flash it with `make petbot-test`, then open http://sparkle.local (or the IP on serial).
 - `IDEAS.md`: her Idea Board (ideas, picks, badges).
 - `pickers/`: every pick-a-number page she has used.
 - `ROADMAP.md`: the grown-up's TinyML plan from ai-petbot (wake word, pet vision), handy for "make it hear me" or
@@ -149,4 +149,6 @@ She loves **unicorns, animals, spy stuff, and a bit of hacking**.
 ## Status
 
 - [x] 2026-10-10: workshop created from ai-petbot; she named it **Magic Bot Workshop** (`pickers/01-lab-name.html`, pick 9)
-- [ ] Next: she names the robot itself, then the name shows on the OLED + web page (her first real build)
+- [x] 2026-10-10: she named the robot **Sparkle** (`pickers/02-robot-name.html`, pick 1). `ROBOT_NAME`/`ROBOT_HOST` in
+  `firmware/petbot_test/petbot_test.ino`; the OLED says "Hi! Sparkle"; the web page is http://sparkle.local (flashed + verified)
+- [ ] Next: ask her for her next idea

@@ -5,6 +5,6 @@ watches them come alive on a Seeed XIAO ESP32S3 Sense (camera, mic, tiny OLED sc
 
 - 💡 **[IDEAS.md](IDEAS.md)**: her Idea Board (ideas, picks, badges)
 - 🎨 **[pickers/](pickers/)**: the pick-a-number pages she chose from
-- 🤖 `make petbot-test`: flash the robot, then open http://petbot.local
+- 🤖 `make petbot-test`: flash the robot, then open http://sparkle.local
 
 Started from `ai-petbot`. See [CLAUDE.md](CLAUDE.md) for hardware, toolchain, and the kid-mode rules.

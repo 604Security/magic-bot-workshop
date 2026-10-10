@@ -1,4 +1,4 @@
-// AI petbot test menu web page, served at "/". Plain HTML/CSS/JS, no build step.
+// Sparkle test menu web page, served at "/". Plain HTML/CSS/JS, no build step.
 #pragma once
 
 const char PAGE_HTML[] PROGMEM = R"rawliteral(<!doctype html>
@@ -6,7 +6,7 @@ const char PAGE_HTML[] PROGMEM = R"rawliteral(<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI petbot · test</title>
+<title>Sparkle · test</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
@@ -130,12 +130,12 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
 <body>
 <header>
   <div class="hero">
-<pre class="banner" aria-label="AI petbot">    _    ___               _   _           _
-   / \  |_ _|   _ __   ___| |_| |__   ___ | |_
-  / _ \  | |   | '_ \ / _ \ __| '_ \ / _ \| __|
- / ___ \ | |   | |_) |  __/ |_| |_) | (_) | |_
-/_/   \_\___|  | .__/ \___|\__|_.__/ \___/ \__|
-               |_|</pre>
+<pre class="banner" aria-label="Sparkle">  ____                   _    _
+ / ___| _ __   __ _ _ __| | _| | ___
+ \___ \| '_ \ / _` | '__| |/ / |/ _ \
+  ___) | |_) | (_| | |  |   &lt;| |  __/
+ |____/| .__/ \__,_|_|  |_|\_\_|\___|
+       |_|</pre>
     <span class="tag">test!</span>
   </div>
 </header>
@@ -146,7 +146,7 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
   <div class="greet">
     <pre class="pet" id="pet-home" aria-hidden="true"></pre>
     <canvas class="unicorn small" id="unicorn-home" width="144" height="160" aria-hidden="true"></canvas>
-    <div class="bubble">Hi! I'm AI petbot.<small>What should we test today?</small></div>
+    <div class="bubble">Hi! I'm Sparkle.<small>What should we test today?</small></div>
   </div>
   <nav class="tiles">
     <a class="tile t-yellow" href="#lights"><span class="emo">💡</span><b>Lights</b><small>Make my light blink!</small></a>
@@ -156,14 +156,14 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
     <a class="tile t-green" href="#memory"><span class="emo">💾</span><b>Memory</b><small>Check my memory card</small></a>
     <a class="tile t-mint" href="#wifi"><span class="emo">📶</span><b>Wi-Fi</b><small>How strong is my signal?</small></a>
   </nav>
-  <p class="status" id="status">Waking petbot up…</p>
+  <p class="status" id="status">Waking Sparkle up…</p>
 </section>
 
 <!-- ============ LIGHTS ============ -->
 <section id="lights" class="panel" hidden>
   <a class="back" href="#">← Menu</a>
   <h2>💡 Lights</h2>
-  <p class="hint">Look for the tiny orange light on petbot, right next to the USB plug!</p>
+  <p class="hint">Look for the tiny orange light on Sparkle, right next to the USB plug!</p>
   <div class="stage">
     <div class="bulb" id="bulb" aria-hidden="true"></div>
     <pre class="pet" id="pet-lights" aria-hidden="true"></pre>
@@ -182,7 +182,7 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
 <section id="sounds" class="panel" hidden>
   <a class="back" href="#">← Menu</a>
   <h2>🎤 Sounds</h2>
-  <p class="hint">Clap, sing, or whisper. petbot is listening!</p>
+  <p class="hint">Clap, sing, or whisper. Sparkle is listening!</p>
   <div class="stage">
     <pre class="pet big" id="pet-sound" aria-hidden="true"></pre>
     <div class="bubble" id="soundword">zzZ… 😴</div>
@@ -201,8 +201,8 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
 <section id="eyes" class="panel" hidden>
   <a class="back" href="#">← Menu</a>
   <h2>📷 Eyes</h2>
-  <p class="hint">This is what petbot sees right now. Wave hello! 👋</p>
-  <div class="tv"><img id="cam" alt="What petbot's camera sees"></div>
+  <p class="hint">This is what Sparkle sees right now. Wave hello! 👋</p>
+  <div class="tv"><img id="cam" alt="What Sparkle's camera sees"></div>
   <div class="btns">
     <button id="snap">📸 Take a photo</button>
     <button id="flip">🙃 Flip</button>
@@ -214,10 +214,10 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
 <section id="screen" class="panel" hidden>
   <a class="back" href="#">← Menu</a>
   <h2>🦄 Screen</h2>
-  <p class="hint">Look at petbot's tiny screen. Is the unicorn there? It blinks and sparkles! (The real screen can only show white, so here she is in pink. 💖)</p>
+  <p class="hint">Look at Sparkle's tiny screen. Is the unicorn there? It blinks and sparkles! (The real screen can only show white, so here she is in pink. 💖)</p>
   <div class="stage">
-<canvas class="unicorn" id="unicorn-big" width="288" height="320" aria-label="petbot's pink unicorn"></canvas>
-    <div class="oled" title="What petbot's real screen looks like"><canvas id="oled" width="288" height="160" aria-label="petbot's screen"></canvas></div>
+<canvas class="unicorn" id="unicorn-big" width="288" height="320" aria-label="Sparkle's pink unicorn"></canvas>
+    <div class="oled" title="What Sparkle's real screen looks like"><canvas id="oled" width="288" height="160" aria-label="Sparkle's screen"></canvas></div>
   </div>
   <p class="hint" style="margin-top:18px">Write a message for the screen (up to 12 letters):</p>
   <div class="msgrow">
@@ -232,7 +232,7 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
 <section id="memory" class="panel" hidden>
   <a class="back" href="#">← Menu</a>
   <h2>💾 Memory</h2>
-  <p class="hint">petbot keeps its sound recordings on a tiny memory card. Let's check it works!</p>
+  <p class="hint">Sparkle keeps its sound recordings on a tiny memory card. Let's check it works!</p>
   <button class="bigbtn" id="sdgo">🔍 Check my memory card</button>
   <div class="result" id="sdresult" hidden></div>
 </section>
@@ -241,27 +241,27 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
 <section id="wifi" class="panel" hidden>
   <a class="back" href="#">← Menu</a>
   <h2>📶 Wi-Fi</h2>
-  <p class="hint">petbot talks to this page over Wi-Fi. More green bars = stronger signal.</p>
+  <p class="hint">Sparkle talks to this page over Wi-Fi. More green bars = stronger signal.</p>
   <div class="wifi">
     <div class="bars" id="bars"><i></i><i></i><i></i><i></i></div>
     <div><b id="wifiword">Checking…</b><span id="wifirssi" style="color:var(--muted)"></span></div>
   </div>
   <dl class="facts">
     <dt>Network</dt><dd id="wssid">…</dd>
-    <dt>petbot's address</dt><dd id="wip">…</dd>
+    <dt>Sparkle's address</dt><dd id="wip">…</dd>
     <dt>Channel</dt><dd id="wch">…</dd>
     <dt>Awake for</dt><dd id="wup">…</dd>
   </dl>
 </section>
 
-<footer>AI petbot test · made with ❤️ for our pet</footer>
+<footer>Sparkle test · made with ❤️ for our pet</footer>
 </main>
 
 <script>
 const $ = id => document.getElementById(id);
 const api = path => fetch(path, {cache: 'no-store'}).then(r => r.json());
 
-// ---------- the unicorn: the exact 36x40 bitmap petbot's OLED shows (from unicorn.py js) ----------
+// ---------- the unicorn: the exact 36x40 bitmap Sparkle's OLED shows (from unicorn.py js) ----------
 const UNICORN = ['000000000','000000000','000000010','000000030','000040060','0000400c0','000460040','001ff0380','003ff0700','007fd8f00','007fcdc00','00ffcf800','01ffffe00','01fff8f00','01fff0780','03dff4780','03dfe07e0','07fef07f8','07bdf07fc','07fcf8ffe','077cffffe','0ef8ffffe','0ef87ffe7','0df87ffff','0df9ffffe','1df1ffffe','1df1ffcee','1df1fef1c','1df1fe7f8','3de1fe0c0','3de1ff000','3de1ff000','3fe1ff000','7bc1ff000','7fc1ff000','77c3ff000','7fc3ff800','6f83ff800','6f83ff800','7fc3ff800'];
 const UNICORN_BLINK = ['000000000','000000000','000000010','000000030','000040060','0000400c0','000460040','001ff0380','003ff0700','007fd8f00','007fcdc00','00ffcf800','01ffffe00','01fffff00','01fffff80','03dffff80','03dffffe0','07fef77f8','07bdf07fc','07fcfdffe','077cffffe','0ef8ffffe','0ef87ffe7','0df87ffff','0df9ffffe','1df1ffffe','1df1ffcee','1df1fef1c','1df1fe7f8','3de1fe0c0','3de1ff000','3de1ff000','3fe1ff000','7bc1ff000','7fc1ff000','77c3ff000','7fc3ff800','6f83ff800','6f83ff800','7fc3ff800'];
 const UW = 36, UH = 40;
@@ -293,7 +293,7 @@ function drawPinkUnicorn(cv, t) {
   if (k === 2) sparkle(g, 34 * px, 9 * px, px * 1.4, pink);
   if (k === 1) sparkle(g, 6 * px, 5 * px, px * 1.2, gold);
 }
-// A look-alike of petbot's real 72x40 white-on-black screen.
+// A look-alike of Sparkle's real 72x40 white-on-black screen.
 function drawOled(cv, t, text) {
   const g = cv.getContext('2d'), px = cv.width / 72;
   g.fillStyle = '#05060A'; g.fillRect(0, 0, cv.width, cv.height);
@@ -305,9 +305,9 @@ function drawOled(cv, t, text) {
   g.font = 'bold ' + (px * 10) + 'px "Space Mono", monospace';
   g.textAlign = 'center'; g.textBaseline = 'alphabetic';
   if (text === null) {
-    g.fillText('AI', 54 * px, 12 * px);
+    g.fillText('Hi!', 54 * px, 12 * px);
     g.font = (px * 7) + 'px "Space Mono", monospace';
-    g.fillText('petbot', 54 * px, 22 * px);
+    g.fillText('Sparkle', 54 * px, 22 * px);
     const r = (Math.floor(t / 400) % 2 ? 2 : 1.5) * px, cx = 54 * px, cy = 28 * px;
     g.beginPath(); g.arc(cx - r, cy, r, 0, 7); g.arc(cx + r, cy, r, 0, 7); g.fill();
     g.beginPath(); g.moveTo(cx - 2 * r - px, cy + px); g.lineTo(cx + 2 * r + px, cy + px); g.lineTo(cx, cy + 2 * r + 3 * px); g.fill();
@@ -373,14 +373,14 @@ function startHome() {
   api('/api/info').then(i => {
     const ok = v => v ? '✅' : '❌';
     $('status').textContent = `📶 Wi-Fi ${ok(true)}  ·  📷 camera ${ok(i.camera)}  ·  🎤 mic ${ok(i.mic)}  ·  🦄 screen ${ok(i.screen)}`;
-  }).catch(() => $('status').textContent = "Hmm, I can't reach petbot. Is it switched on?");
+  }).catch(() => $('status').textContent = "Hmm, I can't reach Sparkle. Is it switched on?");
 }
 
 // ---------- lights ----------
 const HELLO = [1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 7], UNIT = 150;
 const LED_MSG = {
   on: 'The light is ON. ☀️', off: 'The light is off. Night night! 🌙', blink: 'Blink… blink… blink… ✨',
-  disco: 'DISCO PARTY! 🪩🕺💃', hello: 'petbot is saying “HI” in Morse code: •••• ••'
+  disco: 'DISCO PARTY! 🪩🕺💃', hello: 'Sparkle is saying “HI” in Morse code: •••• ••'
 };
 let ledMode = 'off', ledT0 = 0;
 function ledState(t) {
@@ -417,10 +417,10 @@ function startLights() {
 const QUIET = 40, TALK = 250, LOUD = 1200;   // RMS levels; quiet room is ~10-25
 let shown = 0, best = 0, inFlight = false, zone = '', zoneSince = 0, step = 0;
 const CHALLENGES = [
-  {text: '🎯 Challenge: can you make petbot say WOW?', done: z => z === 'wow'},
-  {text: '🤫 Now be super quiet so petbot falls asleep… (3 seconds)', done: (z, ms) => z === 'sleep' && ms > 3000},
-  {text: '🗣️ Talk to petbot in your normal voice for 2 seconds', done: (z, ms) => (z === 'listen' || z === 'yay') && ms > 2000},
-  {text: '🎵 Sing a song! Keep petbot saying “Yay!”', done: (z, ms) => z === 'yay' && ms > 1500},
+  {text: '🎯 Challenge: can you make Sparkle say WOW?', done: z => z === 'wow'},
+  {text: '🤫 Now be super quiet so Sparkle falls asleep… (3 seconds)', done: (z, ms) => z === 'sleep' && ms > 3000},
+  {text: '🗣️ Talk to Sparkle in your normal voice for 2 seconds', done: (z, ms) => (z === 'listen' || z === 'yay') && ms > 2000},
+  {text: '🎵 Sing a song! Keep Sparkle saying “Yay!”', done: (z, ms) => z === 'yay' && ms > 1500},
 ];
 function loud01(level) { return Math.min(1, Math.max(0, (Math.log10(Math.max(level, 10)) - 1) / 2.8)); }
 function showChallenge() { $('challenge').textContent = CHALLENGES[step].text; }
@@ -461,8 +461,8 @@ $('flip').onclick = () => $('cam').classList.toggle('flip');
 $('snap').onclick = () => fetch('/capture', {cache: 'no-store'}).then(r => r.blob()).then(b => {
   const url = URL.createObjectURL(b);
   const a = document.createElement('a');
-  a.href = url; a.download = 'petbot-photo.jpg'; a.title = 'Click to save';
-  a.innerHTML = '<img alt="petbot photo" src="' + url + '">';
+  a.href = url; a.download = 'sparkle-photo.jpg'; a.title = 'Click to save';
+  a.innerHTML = '<img alt="Sparkle photo" src="' + url + '">';
   if ($('cam').classList.contains('flip')) a.firstChild.style.transform = 'rotate(180deg)';
   $('photos').prepend(a);
 });
@@ -473,7 +473,7 @@ function startEyes() {
 // ---------- screen ----------
 function sendScreen(q, label) {
   api('/api/screen?' + q).then(r => {
-    $('screenmsg').textContent = r.screen ? label : "I can't find petbot's screen. Is the screen board plugged in?";
+    $('screenmsg').textContent = r.screen ? label : "I can't find Sparkle's screen. Is the screen board plugged in?";
   }).catch(() => {});
 }
 let oledText = null;  // null = unicorn says "Hi!"
@@ -513,7 +513,7 @@ $('sdgo').onclick = () => {
       '<p>I found a <b>' + gb + ' GB</b> ' + r.type + ' card.</p>' +
       '<p>I wrote a secret note and read it back:<br><b>“' + r.note.replace(/</g, '&lt;') + '”</b></p>' +
       '<p>' + r.count + ' thing' + (r.count === 1 ? '' : 's') + ' on the card:</p><div class="chips">' + chips + '</div>';
-  }).catch(() => box.innerHTML = "<h3>😟 Oops</h3><p>I couldn't reach petbot.</p>");
+  }).catch(() => box.innerHTML = "<h3>😟 Oops</h3><p>I couldn't reach Sparkle.</p>");
 };
 function startMemory() { $('sdresult').hidden = true; }
 

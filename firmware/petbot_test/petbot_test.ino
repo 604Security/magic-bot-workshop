@@ -1,6 +1,6 @@
-// AI petbot test menu: a friendly test menu for petbot, served over Wi-Fi.
+// Sparkle's test menu: a friendly test menu for the robot, served over Wi-Fi.
 //
-// Open the address printed on serial (or http://petbot.local) and pick a test:
+// Open the address printed on serial (or http://sparkle.local) and pick a test:
 //   Lights, Sounds, Eyes (camera), Memory (microSD), Wi-Fi, Screen.
 // The OLED (XIAOML Kit, 72x40) shows a unicorn and follows along with the menu.
 //
@@ -21,6 +21,10 @@
 #include "secrets.h"
 #include "page.h"
 #include "unicorn.h"
+
+// Her robot's name (she picked it on pickers/02-robot-name.html). 7 letters max to fit the screen.
+#define ROBOT_NAME "Sparkle"
+#define ROBOT_HOST "sparkle"  // web address: http://sparkle.local
 
 // ---------------------------------------------------------------- pins
 const int LED_PIN = 21;  // orange user LED, active LOW. Shared with the SD card CS!
@@ -66,12 +70,12 @@ char sdResult[8] = "?";
 U8G2_SSD1306_72X40_ER_F_HW_I2C u8g2(U8G2_R2, U8X8_PIN_NONE);
 
 const char BANNER[] = R"ART(
-    _    ___               _   _           _
-   / \  |_ _|   _ __   ___| |_| |__   ___ | |_         *
-  / _ \  | |   | '_ \ / _ \ __| '_ \ / _ \| __|    /\  |  /\
- / ___ \ | |   | |_) |  __/ |_| |_) | (_) | |_    / (o   o) \
-/_/   \_\___|  | .__/ \___|\__|_.__/ \___/ \__|     \  ^  /
-               |_|  ~ test ~                         '---'
+  ____                   _    _                *
+ / ___| _ __   __ _ _ __| | _| | ___       /\  |  /\
+ \___ \| '_ \ / _` | '__| |/ / |/ _ \     / (o   o) \
+  ___) | |_) | (_| | |  |   <| |  __/      \  ^  /
+ |____/| .__/ \__,_|_|  |_|\_\_|\___|       '---'
+       |_|  ~ test ~
 )ART";
 
 // ---------------------------------------------------------------- LED
@@ -218,7 +222,7 @@ String runSdTest() {
     root.close();
     files += "]";
 
-    String note = "petbot was here! (awake for " + String(millis() / 1000) + " seconds)";
+    String note = String(ROBOT_NAME) + " was here! (awake for " + String(millis() / 1000) + " seconds)";
     String back;
     File w = SD.open("/petbot_note.txt", FILE_WRITE);
     bool wrote = w && w.print(note) == note.length();
@@ -287,9 +291,9 @@ void updateScreen() {
   switch (screenView) {
     case V_HOME:
       u8g2.setFont(u8g2_font_helvB10_tr);
-      drawCentered("AI", 12);
+      drawCentered("Hi!", 12);
       u8g2.setFont(u8g2_font_5x8_tr);
-      drawCentered("petbot", 22);
+      drawCentered(ROBOT_NAME, 22);
       drawHeart(54, 28, (now / 400) % 2 ? 2 : 1);
       break;
     case V_LIGHTS:
@@ -515,7 +519,7 @@ void printMenu() {
     return;
   }
   String base = "http://" + WiFi.localIP().toString();
-  Serial.println("  AI petbot is awake! Click a link to start a test:\n");
+  Serial.println("  " ROBOT_NAME " is awake! Click a link to start a test:\n");
   Serial.printf("    Menu     %s/\n", base.c_str());
   Serial.printf("    Lights   %s/#lights\n", base.c_str());
   Serial.printf("    Sounds   %s/#sounds\n", base.c_str());
@@ -523,7 +527,7 @@ void printMenu() {
   Serial.printf("    Memory   %s/#memory\n", base.c_str());
   Serial.printf("    Wi-Fi    %s/#wifi\n", base.c_str());
   Serial.printf("    Screen   %s/#screen\n", base.c_str());
-  Serial.println("\n    (http://petbot.local/ works too on most computers)");
+  Serial.println("\n    (http://" ROBOT_HOST ".local/ works too on most computers)");
   Serial.println("  Press Enter here to show this menu again.\n");
 }
 
@@ -531,7 +535,7 @@ void printMenu() {
 void setup() {
   Serial.begin(115200);
   delay(2000);  // give the USB serial time to come up
-  Serial.println("AI petbot test starting...");
+  Serial.println(ROBOT_NAME " is starting...");
 
   pinMode(LED_PIN, OUTPUT);
   setLed(false);
@@ -550,7 +554,7 @@ void setup() {
   if (micOk) xTaskCreatePinnedToCore(micTask, "mic", 4096, nullptr, 1, nullptr, 1);
 
   WiFi.mode(WIFI_STA);
-  WiFi.setHostname("petbot");
+  WiFi.setHostname(ROBOT_HOST);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   unsigned long start = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - start < 20000) {
@@ -559,7 +563,7 @@ void setup() {
   }
   if (WiFi.status() == WL_CONNECTED) {
     WiFi.setSleep(false);  // snappier web page and camera stream
-    MDNS.begin("petbot");
+    MDNS.begin(ROBOT_HOST);
     MDNS.addService("http", "tcp", 80);
     startWeb();
   }
