@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Name Your Robot</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg1:#2b0f4c; --bg2:#5a1a7a; --card:#ffffff; --ink:#3a1650; }
+  * { box-sizing: border-box; }
+  html { background:#2b0f4c; }
+  body { margin:0; min-height:100vh; font-family:'Fredoka',system-ui,sans-serif; color:var(--ink);
+    background: radial-gradient(circle at 20% 10%, #ff7ad9 0, transparent 40%),
+                radial-gradient(circle at 80% 90%, #6ad7ff 0, transparent 40%),
+                linear-gradient(160deg,var(--bg1),var(--bg2)); padding:24px 16px 60px; }
+  h1 { text-align:center; color:#fff; font-size:clamp(28px,5vw,52px); margin:0 0 6px;
+    text-shadow:0 4px 0 #ff4fb8, 0 8px 20px #0006; }
+  .sub { text-align:center; color:#ffe6fb; font-size:clamp(16px,2.4vw,22px); margin:0 0 24px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:18px; max-width:1300px; margin:0 auto; }
+  .tile { position:relative; background:var(--card); border-radius:26px; padding:18px 16px 16px; text-align:center;
+    box-shadow:0 8px 0 var(--edge), 0 14px 30px #0005; cursor:pointer; transition:transform .15s; border:4px solid var(--edge); }
+  .tile:hover { transform:translateY(-4px) rotate(-1deg); }
+  .tile.picked { transform:scale(1.04); box-shadow:0 0 0 6px #fff, 0 0 40px 10px var(--edge); }
+  .num { position:absolute; top:-14px; left:-10px; width:54px; height:54px; border-radius:50%; background:var(--edge);
+    color:#fff; font-size:30px; font-weight:700; display:grid; place-items:center; border:4px solid #fff; box-shadow:0 4px 10px #0004; }
+  .stage { height:150px; background:#05060A !important; display:flex; align-items:center; justify-content:center; white-space:nowrap; font-size:64px; position:relative; overflow:hidden;
+    border-radius:18px; background:var(--soft); margin-bottom:10px; }
+  .name { font-size:24px; font-weight:700; line-height:1.15; margin:4px 0 6px; }
+  .repo { font-family:ui-monospace,monospace; font-size:13px; color:#7a5a8a; background:#f4eefa; border-radius:8px; padding:4px 6px; display:inline-block; }
+  .say { margin-top:10px; border:none; background:var(--edge); color:#fff; font:inherit; font-size:18px; border-radius:999px; padding:6px 16px; cursor:pointer; }
+  .banner { position:fixed; left:50%; bottom:20px; transform:translateX(-50%) translateY(150%); background:#fff; color:var(--ink);
+    font-size:24px; font-weight:700; padding:14px 28px; border-radius:999px; box-shadow:0 10px 30px #0006; transition:transform .3s, opacity .3s; opacity:0; z-index:9; text-align:center; max-width:calc(100% - 32px); }
+  .banner.show { transform:translateX(-50%) translateY(0); opacity:1; }
+  /* animations */
+  @keyframes bob { 50% { transform:translateY(-12px) rotate(4deg);} }
+  @keyframes spin { to { transform:rotate(360deg);} }
+  @keyframes peek { 0%,100%{transform:translateX(-90px)} 40%,60%{transform:translateX(0)} }
+  @keyframes pulse { 50% { transform:scale(1.2);} }
+  @keyframes hop { 0%,100%{transform:translateY(0)} 30%{transform:translateY(-26px)} 50%{transform:translateY(0)} }
+  @keyframes twinkle { 50% { opacity:.2; transform:scale(.6);} }
+  @keyframes rain { from { transform:translateY(-70px);} to { transform:translateY(70px);} }
+  @keyframes rainbow { to { filter:hue-rotate(360deg);} }
+  .bob{display:inline-block;animation:bob 1.6s ease-in-out infinite} .spin{animation:spin 3s linear infinite}
+  .peek{animation:peek 3s ease-in-out infinite} .pulse{display:inline-block;animation:pulse 1.2s ease-in-out infinite}
+  .hop{display:inline-block;animation:hop 1.1s ease-in-out infinite} .rainbow{animation:rainbow 3s linear infinite}
+  .spark { position:absolute; font-size:22px; animation:twinkle 1.4s ease-in-out infinite; }
+  .code { position:absolute; font-family:monospace; font-size:16px; color:#3cff7a; animation:rain 1.8s linear infinite; }
+  .stage canvas { width:100%; max-width:216px; image-rendering:pixelated; }
+  .pal { font-size:30px; margin-top:4px; }
+</style>
+</head>
+<body>
+<h1>🤖 Name Your Robot! 🦄</h1>
+<p class="sub">This is how your robot's tiny screen will look. Pick a number!</p>
+<div class="grid" id="grid"></div>
+<div class="banner" id="banner"></div>
+<script>
+const UNICORN = ['000000000','000000000','000000010','000000030','000040060','0000400c0','000460040','001ff0380','003ff0700','007fd8f00','007fcdc00','00ffcf800','01ffffe00','01fff8f00','01fff0780','03dff4780','03dfe07e0','07fef07f8','07bdf07fc','07fcf8ffe','077cffffe','0ef8ffffe','0ef87ffe7','0df87ffff','0df9ffffe','1df1ffffe','1df1ffcee','1df1fef1c','1df1fe7f8','3de1fe0c0','3de1ff000','3de1ff000','3fe1ff000','7bc1ff000','7fc1ff000','77c3ff000','7fc3ff800','6f83ff800','6f83ff800','7fc3ff800'];
+const UNICORN_BLINK = ['000000000','000000000','000000010','000000030','000040060','0000400c0','000460040','001ff0380','003ff0700','007fd8f00','007fcdc00','00ffcf800','01ffffe00','01fffff00','01fffff80','03dffff80','03dffffe0','07fef77f8','07bdf07fc','07fcfdffe','077cffffe','0ef8ffffe','0ef87ffe7','0df87ffff','0df9ffffe','1df1ffffe','1df1ffcee','1df1fef1c','1df1fe7f8','3de1fe0c0','3de1ff000','3de1ff000','3fe1ff000','7bc1ff000','7fc1ff000','77c3ff000','7fc3ff800','6f83ff800','6f83ff800','7fc3ff800'];
+const toBits = rows => rows.map(h => parseInt(h, 16).toString(2).padStart(36, '0'));
+const U_OPEN = toBits(UNICORN), U_SHUT = toBits(UNICORN_BLINK);
+
+const names = [
+  { n:"Sparkle", edge:"#ff4fb8", pal:"✨🦄" },
+  { n:"Pixie",   edge:"#8a4dff", pal:"🧚‍♀️" },
+  { n:"Gizmo",   edge:"#ff8a00", pal:"⚙️🤖" },
+  { n:"Glitter", edge:"#e0007a", pal:"💎✨" },
+  { n:"Twinkle", edge:"#3366ff", pal:"⭐🌙" },
+  { n:"Zippy",   edge:"#00a37a", pal:"⚡🐇" },
+  { n:"Bubbles", edge:"#00a5c8", pal:"🫧🐠" },
+  { n:"Agent X", edge:"#222",    pal:"🕵️😎" },
+  { n:"Cupcake", edge:"#c2408a", pal:"🧁🍓" },
+  { n:"Moonie",  edge:"#9b30ff", pal:"🌙🦉" },
+];
+
+// The real screen: 72x40 pixels, white on black. Text is snapped to whole pixels like the real thing.
+function drawScreen(cv, t, name) {
+  const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  const W = 72, H = 40, s = cv.width / W;
+  const off = document.createElement('canvas'); off.width = W; off.height = H;
+  const o = off.getContext('2d');
+  o.fillStyle = '#fff';
+  o.font = 'bold 10px Arial'; o.textAlign = 'center'; o.fillText('Hi!', 54, 11);
+  o.font = '8px monospace'; o.fillText(name, 54, 22);
+  const txt = o.getImageData(0, 0, W, H).data;
+  g.fillStyle = '#05060A'; g.fillRect(0, 0, cv.width, cv.height);
+  g.fillStyle = '#EAF6FF';
+  const rows = (t % 4000) < 160 ? U_SHUT : U_OPEN;
+  rows.forEach((row, y) => [...row].forEach((b, x) => { if (b === '1') g.fillRect(x * s, y * s, s - 0.6, s - 0.6); }));
+  for (let y = 0; y < H; y++) for (let x = 37; x < W; x++) if (txt[(y * W + x) * 4 + 3] > 110) g.fillRect(x * s, y * s, s - 0.6, s - 0.6);
+  const k = Math.floor(t / 300) % 4, sp = (x, y, r) => { g.fillRect((x - r) * s, y * s, (2 * r + 1) * s, s); g.fillRect(x * s, (y - r) * s, s, (2 * r + 1) * s); };
+  sp(26, 3, k === 0 ? 2 : 1); if (k === 2) sp(35, 8, 2);
+  const r = Math.floor(t / 400) % 2 ? 2 : 1, cx = 54, cy = 28;
+  g.beginPath(); g.arc((cx - r + .5) * s, (cy + .5) * s, r * s, 0, 7); g.arc((cx + r + .5) * s, (cy + .5) * s, r * s, 0, 7); g.fill();
+  g.beginPath(); g.moveTo((cx - 2 * r - 1) * s, (cy + 1) * s); g.lineTo((cx + 2 * r + 2) * s, (cy + 1) * s); g.lineTo((cx + .5) * s, (cy + 2 * r + 3) * s); g.fill();
+}
+
+const grid = document.getElementById('grid'), banner = document.getElementById('banner'), cvs = [];
+function say(text){ try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.pitch = 1.4; u.rate = .9; speechSynthesis.speak(u); } catch(e){} }
+names.forEach((x, i) => {
+  const t = document.createElement('div'); t.className = 'tile'; t.style.setProperty('--edge', x.edge);
+  t.innerHTML = `<div class="num">${i+1}</div><div class="stage"><canvas width="216" height="120"></canvas></div>
+    <div class="name">${x.n}</div><div class="pal">${x.pal}</div>
+    <button class="say">🔊 Say it</button>`;
+  cvs.push([t.querySelector('canvas'), x.n]);
+  t.querySelector('.say').addEventListener('click', e => { e.stopPropagation(); say(`Number ${i+1}. Hi, I'm ${x.n}!`); });
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tile').forEach(el => el.classList.remove('picked')); t.classList.add('picked');
+    banner.textContent = `🎉 Number ${i+1}! Your robot is called ${x.n}! 🎉`; banner.classList.add('show');
+    say(`Yay! Number ${i+1}. Hi, I'm ${x.n}!`);
+  });
+  grid.appendChild(t);
+});
+(function loop(t){ cvs.forEach(([c, n]) => drawScreen(c, t, n)); requestAnimationFrame(loop); })(0);
+</script>
+</body>
+</html>
