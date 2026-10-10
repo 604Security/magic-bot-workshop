@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pick a Name!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg1:#2b0f4c; --bg2:#5a1a7a; --card:#ffffff; --ink:#3a1650; }
+  * { box-sizing: border-box; }
+  html { background:#2b0f4c; }
+  body { margin:0; min-height:100vh; font-family:'Fredoka',system-ui,sans-serif; color:var(--ink);
+    background: radial-gradient(circle at 20% 10%, #ff7ad9 0, transparent 40%),
+                radial-gradient(circle at 80% 90%, #6ad7ff 0, transparent 40%),
+                linear-gradient(160deg,var(--bg1),var(--bg2)); padding:24px 16px 60px; }
+  h1 { text-align:center; color:#fff; font-size:clamp(28px,5vw,52px); margin:0 0 6px;
+    text-shadow:0 4px 0 #ff4fb8, 0 8px 20px #0006; }
+  .sub { text-align:center; color:#ffe6fb; font-size:clamp(16px,2.4vw,22px); margin:0 0 24px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:18px; max-width:1300px; margin:0 auto; }
+  .tile { position:relative; background:var(--card); border-radius:26px; padding:18px 16px 16px; text-align:center;
+    box-shadow:0 8px 0 var(--edge), 0 14px 30px #0005; cursor:pointer; transition:transform .15s; border:4px solid var(--edge); }
+  .tile:hover { transform:translateY(-4px) rotate(-1deg); }
+  .tile.picked { transform:scale(1.04); box-shadow:0 0 0 6px #fff, 0 0 40px 10px var(--edge); }
+  .num { position:absolute; top:-14px; left:-10px; width:54px; height:54px; border-radius:50%; background:var(--edge);
+    color:#fff; font-size:30px; font-weight:700; display:grid; place-items:center; border:4px solid #fff; box-shadow:0 4px 10px #0004; }
+  .stage { height:120px; display:flex; align-items:center; justify-content:center; white-space:nowrap; font-size:64px; position:relative; overflow:hidden;
+    border-radius:18px; background:var(--soft); margin-bottom:10px; }
+  .name { font-size:24px; font-weight:700; line-height:1.15; margin:4px 0 6px; }
+  .repo { font-family:ui-monospace,monospace; font-size:13px; color:#7a5a8a; background:#f4eefa; border-radius:8px; padding:4px 6px; display:inline-block; }
+  .say { margin-top:10px; border:none; background:var(--edge); color:#fff; font:inherit; font-size:18px; border-radius:999px; padding:6px 16px; cursor:pointer; }
+  .banner { position:fixed; left:50%; bottom:20px; transform:translateX(-50%) translateY(150%); background:#fff; color:var(--ink);
+    font-size:24px; font-weight:700; padding:14px 28px; border-radius:999px; box-shadow:0 10px 30px #0006; transition:transform .3s, opacity .3s; opacity:0; z-index:9; text-align:center; max-width:calc(100% - 32px); }
+  .banner.show { transform:translateX(-50%) translateY(0); opacity:1; }
+  /* animations */
+  @keyframes bob { 50% { transform:translateY(-12px) rotate(4deg);} }
+  @keyframes spin { to { transform:rotate(360deg);} }
+  @keyframes peek { 0%,100%{transform:translateX(-90px)} 40%,60%{transform:translateX(0)} }
+  @keyframes pulse { 50% { transform:scale(1.2);} }
+  @keyframes hop { 0%,100%{transform:translateY(0)} 30%{transform:translateY(-26px)} 50%{transform:translateY(0)} }
+  @keyframes twinkle { 50% { opacity:.2; transform:scale(.6);} }
+  @keyframes rain { from { transform:translateY(-70px);} to { transform:translateY(70px);} }
+  @keyframes rainbow { to { filter:hue-rotate(360deg);} }
+  .bob{display:inline-block;animation:bob 1.6s ease-in-out infinite} .spin{animation:spin 3s linear infinite}
+  .peek{animation:peek 3s ease-in-out infinite} .pulse{display:inline-block;animation:pulse 1.2s ease-in-out infinite}
+  .hop{display:inline-block;animation:hop 1.1s ease-in-out infinite} .rainbow{animation:rainbow 3s linear infinite}
+  .spark { position:absolute; font-size:22px; animation:twinkle 1.4s ease-in-out infinite; }
+  .code { position:absolute; font-family:monospace; font-size:16px; color:#3cff7a; animation:rain 1.8s linear infinite; }
+</style>
+</head>
+<body>
+<h1>✨ Name Your Robot Lab! ✨</h1>
+<p class="sub">Pick a number! Tap 🔊 to hear the name.</p>
+<div class="grid" id="grid"></div>
+<div class="banner" id="banner"></div>
+
+<script>
+const names = [
+  { n:"Unicorn Hacker Lab", repo:"unicorn-hacker-lab", edge:"#ff4fb8", soft:"#ffe3f4",
+    art:`<span class="bob">🦄</span><span class="code" style="left:12px;animation-delay:-.4s">1</span><span class="code" style="right:16px;animation-delay:-1.1s">0</span><span class="code" style="left:40px;animation-delay:-1.5s">1</span>` },
+  { n:"Sparkle Spy Bot", repo:"sparkle-spy-bot", edge:"#8a4dff", soft:"#ece3ff",
+    art:`<span class="bob">🕵️</span><span class="spark" style="top:14px;left:30px">✨</span><span class="spark" style="bottom:16px;right:30px;animation-delay:-.7s">✨</span>` },
+  { n:"Agent Unicorn", repo:"agent-unicorn", edge:"#222", soft:"#e9e9f0",
+    art:`<span class="peek">🦄</span><span style="position:absolute;top:22px;font-size:36px">😎</span>` },
+  { n:"Rainbow Robot Lab", repo:"rainbow-robot-lab", edge:"#ff8a00", soft:"#fff1dc",
+    art:`<span class="rainbow" style="font-size:60px">🌈🤖</span>` },
+  { n:"Secret Pet HQ", repo:"secret-pet-hq", edge:"#00a37a", soft:"#dcfff3",
+    art:`<span class="hop" style="font-size:54px">🐶</span><span class="hop" style="font-size:54px;animation-delay:-.5s">🐱</span><span style="position:absolute;bottom:6px;right:10px;font-size:30px">🔒</span>` },
+  { n:"Glitter Code Club", repo:"glitter-code-club", edge:"#e0007a", soft:"#ffe0f0",
+    art:`<span class="spin" style="font-size:64px">💎</span><span class="spark" style="top:10px;left:20px">✨</span><span class="spark" style="top:20px;right:24px;animation-delay:-.5s">⭐</span><span class="spark" style="bottom:12px;left:50px;animation-delay:-1s">✨</span>` },
+  { n:"Unicorn Spy Academy", repo:"unicorn-spy-academy", edge:"#3366ff", soft:"#e0e8ff",
+    art:`<span class="bob">🦄</span><span class="pulse" style="font-size:48px">🎓</span>` },
+  { n:"Critter Code Crew", repo:"critter-code-crew", edge:"#2fa82f", soft:"#e2ffdc",
+    art:`<span class="hop" style="font-size:50px">🐰</span><span class="hop" style="font-size:50px;animation-delay:-.3s">🦊</span><span class="hop" style="font-size:50px;animation-delay:-.6s">🐼</span>` },
+  { n:"Magic Bot Workshop", repo:"magic-bot-workshop", edge:"#9b30ff", soft:"#f1e2ff",
+    art:`<span class="bob">🪄</span><span class="pulse">🤖</span><span class="spark" style="top:12px;right:30px">✨</span>` },
+  { n:"Pixel Pony Lab", repo:"pixel-pony-lab", edge:"#00a5c8", soft:"#dcf7ff",
+    art:`<span class="hop" style="image-rendering:pixelated">🐴</span><span class="spark" style="top:16px;left:26px;font-size:18px">▪️</span><span class="spark" style="bottom:20px;right:26px;font-size:18px;animation-delay:-.6s">▪️</span>` },
+];
+
+const grid = document.getElementById('grid');
+const banner = document.getElementById('banner');
+
+function say(text){
+  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.pitch = 1.4; u.rate = .9; speechSynthesis.speak(u); } catch(e){}
+}
+
+names.forEach((x,i) => {
+  const t = document.createElement('div');
+  t.className = 'tile';
+  t.style.setProperty('--edge', x.edge);
+  t.style.setProperty('--soft', x.soft);
+  t.innerHTML = `<div class="num">${i+1}</div><div class="stage">${x.art}</div>
+    <div class="name">${x.n}</div><div class="repo">${x.repo}</div><br>
+    <button class="say" aria-label="Say ${x.n}">🔊 Say it</button>`;
+  t.querySelector('.say').addEventListener('click', e => { e.stopPropagation(); say(`Number ${i+1}. ${x.n}`); });
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tile').forEach(el => el.classList.remove('picked'));
+    t.classList.add('picked');
+    banner.textContent = `🎉 You picked number ${i+1}: ${x.n}! 🎉`;
+    banner.classList.add('show');
+    say(`Yay! Number ${i+1}. ${x.n}!`);
+  });
+  grid.appendChild(t);
+});
+</script>
+</body>
+</html>

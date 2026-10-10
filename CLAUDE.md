@@ -1,15 +1,49 @@
-# AI petbot
+# Magic Bot Workshop 🪄🤖
 
-Pet robot project built on the **Seeed XIAO ESP32S3 Sense**, using on-device TinyML
-(vision, sound, motion).
+A coding workshop where a 7-year-old **vibe codes** her robot: she has the ideas, Claude writes the code, and
+she sees it come alive on the robot. The robot is a Seeed **XIAO ESP32S3 Sense** (XIAOML Kit: camera, mic,
+OLED, IMU), copied (with git history) from the `ai-petbot` repo on 2026-10-10. She chose the name (option 9).
 
-## Project
+She loves **unicorns, animals, spy stuff, and a bit of hacking**.
 
-- **Goal:** a pet-aware bot. First a **wake word ("Jasmin")**, then **computer vision** to find the pet.
-- **Plan:** follow the mlsysbook.ai XIAO labs, re-themed for petbot. See **[ROADMAP.md](ROADMAP.md)**.
-  Phase 0 bring-up → 1 wake word (KWS) → 2 pet image classification → 3 pet object detection (FOMO) → 4 motion (optional)
-- **Actuators / outputs:** TBD
-- **Power:** TBD (USB-C 5V, or 3.7V LiPo via the XIAO battery pads / IMU board header)
+## Kid-mode rules (read every session)
+
+**Who does what**
+- **She** brings the ideas, names things, and picks options by saying a number. She does **not** type.
+- **The grown-up** (the user) does the typing and approves anything technical or anything that goes online
+  (git push, new services, internet access).
+- **Claude** turns her idea into choices, builds the one she picks, flashes it, and celebrates.
+
+**The loop for every idea**
+1. Write the idea in `IDEAS.md` in her words, even if it's silly.
+2. Make a **pick-a-number page** in `pickers/NN-<idea>.html`: about 6–10 numbered tiles, each one a *moving* preview
+   (pixel-accurate for the 72×40 OLED), plus a 🔊 "Say it" button (speechSynthesis), since she may not read every word.
+   Check it with a headless Chrome screenshot, then open it in Chrome.
+3. She says a number. Record the pick in `IDEAS.md`.
+4. Build it, `make flash`, and tell her exactly where to look (OLED, http://petbot.local, the LED).
+5. Tweaks ("faster!", "more pink!") are the best part: do them quickly and flash again.
+6. When she's happy: give her a badge in `IDEAS.md` and commit (explain to the grown-up in plain words).
+
+**How to talk**
+- Use short sentences and lots of emoji. Tell her what's happening ("I'm teaching the robot a new trick…").
+- Call errors **"oopsies"**. Fix them quietly and give the grown-up the real details.
+- Every so often, show her a tiny bit of the real code ("see this number? that's how fast the unicorn blinks")
+  and explain it like a magic spell. Keep it to **one line**, and only when it's fun.
+- Theme it with unicorns, animals, spy missions, secret codes, and "hacker" green text. Hacking means
+  *her own* robot only (passwords on her pages, secret ciphers, find-the-bug games), never other people's stuff.
+
+**Safety**
+- Nothing personal on the robot or in the repo: no full names, school, address, or photos of faces in commits.
+- The robot stays on the home network. No cloud or internet services unless the grown-up says yes.
+- Never `git push`, create repos, or delete things without the grown-up's OK.
+
+**Where things live**
+- `firmware/petbot_test/`: the robot's web menu + OLED unicorn. This is the main sketch her ideas go into.
+  Flash it with `make petbot-test`, then open http://petbot.local (or the IP on serial).
+- `IDEAS.md`: her Idea Board (ideas, picks, badges).
+- `pickers/`: every pick-a-number page she has used.
+- `ROADMAP.md`: the grown-up's TinyML plan from ai-petbot (wake word, pet vision), handy for "make it hear me" or
+  "make it see the cat" ideas.
 
 ## Hardware
 
@@ -104,30 +138,15 @@ Pet robot project built on the **Seeed XIAO ESP32S3 Sense**, using on-device Tin
 ### Seeed docs
 - XIAO ESP32S3 getting started: https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/
 
+
 ## Repo conventions
 
-- Firmware sketches live in `firmware/<phase>/<sketch>/<sketch>.ino`.
+- Firmware sketches live in `firmware/<area>/<sketch>/<sketch>.ino` (or `firmware/<sketch>/`).
 - Wi-Fi credentials go in a per-sketch `secrets.h` (gitignored); copy it from `secrets.h.example`.
 - Installers/tooling live in `~/tools/`, not in this repo (see `.gitignore`).
-- Keep the "Status / next steps" section below current at the end of each session.
+- Keep "Status" below and `IDEAS.md` current at the end of each session.
 
-## Status / next steps
+## Status
 
-Current phase: **Phase 1 — wake word** (see ROADMAP.md). Phase 0 done 2026-09-28.
-
-- [x] Decide goals: wake word first, then vision
-- [x] Wake word: "Jasmin"
-- [x] Hardware: **XIAOML Kit** (I2C scan found OLED 0x3C + IMU 0x6A)
-- [ ] Open decision (see ROADMAP.md): pet type(s)
-- [x] Phase 0: esp32 core downgraded to 2.0.17; arduino-cli + Makefile set up
-- [x] Phase 0: sketches written and compiling in `firmware/phase0/` (blink, mic_test, sd_test, camera_webserver)
-- [x] Phase 0 on hardware: board detected, USB upload fixed (`--no-stub`), `blink` flashed and running
-- [x] Phase 0 on hardware: `mic_test` flashed; quiet-room level ~10–25 (RMS, DC removed)
-- [x] Phase 0 on hardware: `wifi_test` OK on the home 2.4 GHz network (name in `secrets.h`, ch 6), IP 192.168.86.189 (DHCP), RSSI -48 dBm,
-  pings to gateway/8.8.8.8 and DNS all OK, laptop → board ping OK
-- [x] Phase 0 on hardware: `camera_webserver` running at http://192.168.86.189 (stream on :81/stream,
-  still frame at /capture); 320x240 capture verified
-- [x] Phase 0 on hardware: `sd_test` passed (32 GB SDHC, FAT32, write/read OK)
-- [x] **AI petbot test menu** (`firmware/petbot_test`, `make petbot-test`): kid-friendly web test menu (lights, sounds,
-  camera, OLED unicorn + messages, SD, Wi-Fi) at http://192.168.86.189 or http://petbot.local
-- [ ] Phase 1: next step: run the KWS lab as written (yes/no) to prove the Edge Impulse → Arduino pipeline, then record "Jasmin" dataset and train the wake word
+- [x] 2026-10-10: workshop created from ai-petbot; she named it **Magic Bot Workshop** (`pickers/01-lab-name.html`, pick 9)
+- [ ] Next: she names the robot itself, then the name shows on the OLED + web page (her first real build)

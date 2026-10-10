@@ -1,4 +1,4 @@
-# petbot build helpers (arduino-cli in ~/tools, shares config with Arduino IDE 2.x)
+# Magic Bot Workshop build helpers (arduino-cli in ~/tools, shares config with Arduino IDE 2.x)
 #   make build SKETCH=firmware/phase0/blink
 #   make flash SKETCH=firmware/phase0/blink
 #   make monitor

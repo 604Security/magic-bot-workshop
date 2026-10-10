@@ -1,12 +1,10 @@
-# AI petbot
+# Magic Bot Workshop 🪄🤖
 
-Pet robot project built on the [Seeed XIAO ESP32S3 Sense](https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/),
-using on-device TinyML for vision, sound, and motion.
+A kid's coding workshop: she dreams up ideas for her robot, picks from pick-a-number pages, and
+watches them come alive on a Seeed XIAO ESP32S3 Sense (camera, mic, tiny OLED screen).
 
-## References
-- [Machine Learning Systems](https://mlsysbook.ai) — Harvard open textbook (Vijay Janapa Reddi), with
-  [XIAO ESP32S3 labs](https://mlsysbook.ai/kits/contents/seeed/xiao_esp32s3/xiao_esp32s3.html)
-- [Seeed XIAOML Kit](https://www.seeedstudio.com/The-XIAOML-Kit.html) — companion hardware kit
-- [Mjrovai/XIAO-ESP32S3-Sense](https://github.com/Mjrovai/XIAO-ESP32S3-Sense) — lab code by Marcelo Rovai
+- 💡 **[IDEAS.md](IDEAS.md)**: her Idea Board (ideas, picks, badges)
+- 🎨 **[pickers/](pickers/)**: the pick-a-number pages she chose from
+- 🤖 `make petbot-test`: flash the robot, then open http://petbot.local
 
-See [CLAUDE.md](CLAUDE.md) for hardware details, toolchain setup, and current status.
+Started from `ai-petbot`. See [CLAUDE.md](CLAUDE.md) for hardware, toolchain, and the kid-mode rules.
