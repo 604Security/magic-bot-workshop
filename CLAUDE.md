@@ -4,7 +4,8 @@ A coding workshop where a 7-year-old **vibe codes** her robot: she has the ideas
 she sees it come alive on the robot. The robot is a Seeed **XIAO ESP32S3 Sense** (XIAOML Kit: camera, mic,
 OLED, IMU), copied (with git history) from the `ai-petbot` repo on 2026-10-10. She chose the name (option 9).
 
-She loves **unicorns, animals, spy stuff, and a bit of hacking**.
+She loves **unicorns, animals, spy stuff, a bit of hacking, and Harry Potter**.
+She goes by **Megaspy** (her spy name, from the SIA spy game). The project is credited to her: use "Megaspy", never her real name.
 
 ## Kid-mode rules (read every session)
 

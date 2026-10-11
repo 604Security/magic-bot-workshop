@@ -66,11 +66,16 @@ volatile bool sdBusy = false;  // SD test owns GPIO21 while true
 volatile int soundLevel = 0;  // RMS of the latest 50 ms of audio
 volatile int soundPeak = 0;   // loudest since the page last asked
 
-enum ScreenView { V_HOME, V_LIGHTS, V_SOUNDS, V_EYES, V_MEMORY, V_WIFI, V_MESSAGE, V_DANCE, V_COUNT };
-const char* VIEW_NAMES[V_COUNT] = {"home", "lights", "sounds", "eyes", "memory", "wifi", "message", "dance"};
+enum ScreenView { V_HOME, V_LIGHTS, V_SOUNDS, V_EYES, V_MEMORY, V_WIFI, V_MESSAGE, V_DANCE, V_OWL, V_COUNT };
+const char* VIEW_NAMES[V_COUNT] = {"home", "lights", "sounds", "eyes", "memory", "wifi", "message", "dance", "owl"};
 volatile ScreenView screenView = V_HOME;
 volatile unsigned long danceStart = 0;  // millis() when the dance began, 0 = not dancing
 volatile int danceCount = 0;
+
+// Owl Post (Wizard School pick 3): an owl flies a letter onto the screen
+#define OWL_FLY_MS 3000  // how long the owl flies before the letter opens
+char owlMsg[25] = "";
+volatile unsigned long owlStart = 0;  // 0 = no letter yet
 
 bool dancing() { return danceStart && millis() - danceStart < DANCE_MS; }
 void startDance() {
@@ -311,6 +316,72 @@ void drawHeartTwirl(unsigned long t) {
   }
 }
 
+void drawOwl(int x, int y, bool flap) {
+  u8g2.drawDisc(x, y, 6);
+  u8g2.setDrawColor(0);
+  u8g2.drawDisc(x - 2, y - 2, 2);
+  u8g2.drawDisc(x + 2, y - 2, 2);
+  u8g2.drawPixel(x, y + 1);  // beak
+  u8g2.setDrawColor(1);
+  u8g2.drawPixel(x - 2, y - 2);
+  u8g2.drawPixel(x + 2, y - 2);
+  u8g2.drawLine(x - 6, y - 7, x - 3, y - 5);  // ear tufts
+  u8g2.drawLine(x + 6, y - 7, x + 3, y - 5);
+  u8g2.drawLine(x - 6, y, x - 12, y + (flap ? -5 : 4));  // wings
+  u8g2.drawLine(x + 6, y, x + 12, y + (flap ? -5 : 4));
+}
+
+void drawEnvelope(int x, int y, int w, int h) {
+  u8g2.drawFrame(x, y, w, h);
+  u8g2.drawLine(x, y, x + w / 2, y + h / 2);
+  u8g2.drawLine(x + w - 1, y, x + w / 2, y + h / 2);
+}
+
+// Up to 2 lines of 12 letters across the whole screen, split at a space if we can
+void drawLetter(const char* msg) {
+  u8g2.setFont(u8g2_font_6x10_tr);
+  char a[13] = "", b[13] = "";
+  int len = strlen(msg), cut = len;
+  if (len > 12) {
+    cut = 12;
+    for (int i = 12; i > 0; i--)
+      if (msg[i] == ' ') { cut = i; break; }
+  }
+  strncpy(a, msg, min(cut, 12));
+  a[min(cut, 12)] = 0;
+  const char* rest = msg + cut + (msg[cut] == ' ' ? 1 : 0);
+  strncpy(b, rest, 12);
+  b[12] = 0;
+  int y = b[0] ? 18 : 24;
+  u8g2.drawStr((72 - u8g2.getStrWidth(a)) / 2, y, a);
+  if (b[0]) u8g2.drawStr((72 - u8g2.getStrWidth(b)) / 2, y + 13, b);
+}
+
+void drawOwlPost(unsigned long now) {
+  bool flap = (now / 120) % 2;
+  if (!owlStart) {  // waiting for a letter: the owl sits and blinks
+    drawOwl(16, 22, false);
+    u8g2.setFont(u8g2_font_6x10_tr);
+    drawCentered("owl", 16);
+    drawCentered("post", 28);
+    return;
+  }
+  unsigned long t = now - owlStart;
+  if (t < OWL_FLY_MS) {  // flying in with the letter
+    int x = -14 + (int)(t * 50 / OWL_FLY_MS), y = 14 + (int)(sinf(t / 120.0f) * 3);
+    drawOwl(x, y, flap);
+    drawEnvelope(x - 4, y + 9, 9, 6);
+    drawCentered("hoot!", 36);
+  } else if (t < OWL_FLY_MS + 1500) {  // landed: "post for you!"
+    drawOwl(14, 20, false);
+    drawEnvelope(40, 6, 28, 18);
+    u8g2.setFont(u8g2_font_5x8_tr);
+    drawCentered("for you!", 34);
+  } else {
+    drawLetter(owlMsg);
+  }
+}
+
 void updateScreen() {
   static unsigned long last = 0;
   unsigned long now = millis();
@@ -320,6 +391,11 @@ void updateScreen() {
   u8g2.clearBuffer();
   if (dancing()) {
     drawHeartTwirl(now - danceStart);
+    u8g2.sendBuffer();
+    return;
+  }
+  if (screenView == V_OWL) {
+    drawOwlPost(now);
     u8g2.sendBuffer();
     return;
   }
@@ -504,6 +580,20 @@ esp_err_t danceHandler(httpd_req_t* req) {
   return sendJson(req, String("{\"left\":") + left + ",\"total\":" + DANCE_MS + ",\"count\":" + danceCount + "}");
 }
 
+// /api/owl?msg=HELLO sends a letter by owl
+esp_err_t owlHandler(httpd_req_t* req) {
+  char msg[80];
+  if (queryParam(req, "msg", msg, sizeof(msg))) {
+    int n = 0;
+    for (char* p = msg; *p && n < 24; p++)
+      if (*p >= 32 && *p < 127) owlMsg[n++] = *p;
+    owlMsg[n] = 0;
+    owlStart = millis() ? millis() : 1;
+    screenView = V_OWL;
+  }
+  return sendJson(req, String("{\"fly\":") + OWL_FLY_MS + "}");
+}
+
 esp_err_t captureHandler(httpd_req_t* req) {
   camera_fb_t* fb = cameraOk ? esp_camera_fb_get() : nullptr;
   if (!fb) {
@@ -552,6 +642,7 @@ void startWeb() {
       {"/api/sd", HTTP_GET, sdHandler, nullptr},
       {"/api/screen", HTTP_GET, screenHandler, nullptr},
       {"/api/dance", HTTP_GET, danceHandler, nullptr},
+      {"/api/owl", HTTP_GET, owlHandler, nullptr},
       {"/capture", HTTP_GET, captureHandler, nullptr},
     };
     for (auto& u : uris) httpd_register_uri_handler(web, &u);

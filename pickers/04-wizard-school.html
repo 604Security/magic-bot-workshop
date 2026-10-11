@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wizard School</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg1:#2b0f4c; --bg2:#5a1a7a; --card:#ffffff; --ink:#3a1650; }
+  * { box-sizing: border-box; }
+  html { background:#2b0f4c; }
+  body { margin:0; min-height:100vh; font-family:'Fredoka',system-ui,sans-serif; color:var(--ink);
+    background: radial-gradient(circle at 20% 10%, #ff7ad9 0, transparent 40%),
+                radial-gradient(circle at 80% 90%, #6ad7ff 0, transparent 40%),
+                linear-gradient(160deg,var(--bg1),var(--bg2)); padding:24px 16px 60px; }
+  h1 { text-align:center; color:#fff; font-size:clamp(28px,5vw,52px); margin:0 0 6px;
+    text-shadow:0 4px 0 #ff4fb8, 0 8px 20px #0006; }
+  .sub { text-align:center; color:#ffe6fb; font-size:clamp(16px,2.4vw,22px); margin:0 0 24px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:18px; max-width:1300px; margin:0 auto; }
+  .tile { position:relative; background:var(--card); border-radius:26px; padding:18px 16px 16px; text-align:center;
+    box-shadow:0 8px 0 var(--edge), 0 14px 30px #0005; cursor:pointer; transition:transform .15s; border:4px solid var(--edge); }
+  .tile:hover { transform:translateY(-4px) rotate(-1deg); }
+  .tile.picked { transform:scale(1.04); box-shadow:0 0 0 6px #fff, 0 0 40px 10px var(--edge); }
+  .num { position:absolute; top:-14px; left:-10px; width:54px; height:54px; border-radius:50%; background:var(--edge);
+    color:#fff; font-size:30px; font-weight:700; display:grid; place-items:center; border:4px solid #fff; box-shadow:0 4px 10px #0004; }
+  .stage { height:150px; background:#05060A !important; display:flex; align-items:center; justify-content:center; white-space:nowrap; font-size:64px; position:relative; overflow:hidden;
+    border-radius:18px; background:var(--soft); margin-bottom:10px; }
+  .name { font-size:24px; font-weight:700; line-height:1.15; margin:4px 0 6px; }
+  .repo { font-family:ui-monospace,monospace; font-size:13px; color:#7a5a8a; background:#f4eefa; border-radius:8px; padding:4px 6px; display:inline-block; }
+  .say { margin-top:10px; border:none; background:var(--edge); color:#fff; font:inherit; font-size:18px; border-radius:999px; padding:6px 16px; cursor:pointer; }
+  .banner { position:fixed; left:50%; bottom:20px; transform:translateX(-50%) translateY(150%); background:#fff; color:var(--ink);
+    font-size:24px; font-weight:700; padding:14px 28px; border-radius:999px; box-shadow:0 10px 30px #0006; transition:transform .3s, opacity .3s; opacity:0; z-index:9; text-align:center; max-width:calc(100% - 32px); }
+  .banner.show { transform:translateX(-50%) translateY(0); opacity:1; }
+  /* animations */
+  @keyframes bob { 50% { transform:translateY(-12px) rotate(4deg);} }
+  @keyframes spin { to { transform:rotate(360deg);} }
+  @keyframes peek { 0%,100%{transform:translateX(-90px)} 40%,60%{transform:translateX(0)} }
+  @keyframes pulse { 50% { transform:scale(1.2);} }
+  @keyframes hop { 0%,100%{transform:translateY(0)} 30%{transform:translateY(-26px)} 50%{transform:translateY(0)} }
+  @keyframes twinkle { 50% { opacity:.2; transform:scale(.6);} }
+  @keyframes rain { from { transform:translateY(-70px);} to { transform:translateY(70px);} }
+  @keyframes rainbow { to { filter:hue-rotate(360deg);} }
+  .bob{display:inline-block;animation:bob 1.6s ease-in-out infinite} .spin{animation:spin 3s linear infinite}
+  .peek{animation:peek 3s ease-in-out infinite} .pulse{display:inline-block;animation:pulse 1.2s ease-in-out infinite}
+  .hop{display:inline-block;animation:hop 1.1s ease-in-out infinite} .rainbow{animation:rainbow 3s linear infinite}
+  .spark { position:absolute; font-size:22px; animation:twinkle 1.4s ease-in-out infinite; }
+  .code { position:absolute; font-family:monospace; font-size:16px; color:#3cff7a; animation:rain 1.8s linear infinite; }
+  .stage canvas { width:100%; max-width:216px; image-rendering:pixelated; }
+  .pal { font-size:30px; margin-top:4px; }
+  .clap { margin-top:10px; margin-left:6px; border:3px solid var(--edge); background:#fff; color:var(--edge); font:inherit; font-size:18px; border-radius:999px; padding:4px 14px; cursor:pointer; }
+  .tile.picked .name::after { content:" ✅"; }
+  .what { font-size:16px; color:#6a4a7a; margin:2px 0 4px; min-height:40px; }
+</style>
+</head>
+<body>
+<h1>🪄 Sparkle's Wizard School ⚡</h1>
+<p class="sub">Which magic should Sparkle learn? Pick a number!</p>
+<div class="grid" id="grid"></div>
+<div class="banner" id="banner"></div>
+<script>
+const W = 72, H = 40;
+const F = (...rows) => rows;
+const FONT = {
+  A: F('01110','10001','10001','11111','10001','10001','10001'), B: F('11110','10001','10001','11110','10001','10001','11110'),
+  C: F('01110','10001','10000','10000','10000','10001','01110'), D: F('11110','10001','10001','10001','10001','10001','11110'),
+  E: F('11111','10000','10000','11110','10000','10000','11111'), F: F('11111','10000','10000','11110','10000','10000','10000'),
+  G: F('01110','10001','10000','10111','10001','10001','01111'), H: F('10001','10001','10001','11111','10001','10001','10001'),
+  I: F('01110','00100','00100','00100','00100','00100','01110'), J: F('00111','00010','00010','00010','00010','10010','01100'),
+  K: F('10001','10010','10100','11000','10100','10010','10001'), L: F('10000','10000','10000','10000','10000','10000','11111'),
+  M: F('10001','11011','10101','10101','10001','10001','10001'), N: F('10001','10001','11001','10101','10011','10001','10001'),
+  O: F('01110','10001','10001','10001','10001','10001','01110'), P: F('11110','10001','10001','11110','10000','10000','10000'),
+  Q: F('01110','10001','10001','10001','10101','10010','01101'), R: F('11110','10001','10001','11110','10100','10010','10001'),
+  S: F('01111','10000','10000','01110','00001','00001','11110'), T: F('11111','00100','00100','00100','00100','00100','00100'),
+  U: F('10001','10001','10001','10001','10001','10001','01110'), V: F('10001','10001','10001','10001','10001','01010','00100'),
+  W: F('10001','10001','10001','10101','10101','10101','01010'), X: F('10001','10001','01010','00100','01010','10001','10001'),
+  Y: F('10001','10001','01010','00100','00100','00100','00100'), Z: F('11111','00001','00010','00100','01000','10000','11111'),
+  '!': F('00100','00100','00100','00100','00100','00000','00100'), '.': F('00000','00000','00000','00000','00000','00000','00100'),
+  '?': F('01110','10001','00001','00010','00100','00000','00100'), ' ': F('00000','00000','00000','00000','00000','00000','00000'),
+};
+// A tiny pretend screen: 72x40 white-on-black pixels, exactly like Sparkle's.
+function screen() {
+  const px = new Uint8Array(W * H);
+  const sc = {
+    px,
+    set(x, y) { x = Math.round(x); y = Math.round(y); if (x >= 0 && x < W && y >= 0 && y < H) px[y * W + x] = 1; },
+    line(x0, y0, x1, y1) { const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0), 1); for (let i = 0; i <= n; i++) sc.set(x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n); },
+    rect(x, y, w, h) { for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) sc.set(x + i, y + j); },
+    frame(x, y, w, h) { sc.line(x, y, x + w - 1, y); sc.line(x, y + h - 1, x + w - 1, y + h - 1); sc.line(x, y, x, y + h - 1); sc.line(x + w - 1, y, x + w - 1, y + h - 1); },
+    disc(cx, cy, r) { for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) if (x * x + y * y <= r * r + r * 0.6) sc.set(cx + x, cy + y); },
+    circle(cx, cy, r) { for (let a = 0; a < 64; a++) sc.set(cx + Math.cos(a / 10.18) * r, cy + Math.sin(a / 10.18) * r); },
+    clear(cx, cy, r) { for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) if (x * x + y * y <= r * r) { const X = Math.round(cx + x), Y = Math.round(cy + y); if (X >= 0 && X < W && Y >= 0 && Y < H) px[Y * W + X] = 0; } },
+    sparkle(x, y, r) { for (let i = -r; i <= r; i++) { sc.set(x + i, y); sc.set(x, y + i); } },
+    text(str, cx, y) {  // 5x7 pixel letters (like the real screen), centred on cx, bottom at y
+      str = str.toUpperCase(); const w = str.length * 6 - 1, x0 = Math.round(cx - w / 2);
+      [...str].forEach((ch, i) => (FONT[ch] || FONT[' ']).forEach((row, r) => [...row].forEach((b, c) => { if (b === '1') sc.set(x0 + i * 6 + c, y - 7 + r); })));
+    },
+  };
+  return sc;
+}
+function show(cv, sc) {
+  const g = cv.getContext('2d'), s = cv.width / W;
+  g.fillStyle = '#05060A'; g.fillRect(0, 0, cv.width, cv.height); g.fillStyle = '#EAF6FF';
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (sc.px[y * W + x]) g.fillRect(x * s, y * s, s - 0.6, s - 0.6);
+}
+const wand = (sc, x0, y0, x1, y1) => { sc.line(x0, y0, x1, y1); sc.line(x0 + 1, y0, x1 + 1, y1); sc.rect(x0 - 1, y0 - 3, 4, 4); };
+
+const ideas = [
+  { n: "Lumos!", edge: "#f0b400", what: "Say the spell and Sparkle's real light turns ON. “Nox” turns it off!",
+    say: "Lumos! Light up! Nox! Lights out!", draw(sc, t) {
+      const on = (t % 3000) < 1800; wand(sc, 6, 37, 26, 12);
+      if (on) { const r = 3 + (Math.floor(t / 150) % 2); sc.disc(27, 10, r);
+        for (let a = 0; a < 8; a++) sc.line(27 + Math.cos(a * .785) * (r + 3), 10 + Math.sin(a * .785) * (r + 3), 27 + Math.cos(a * .785) * (r + 6), 10 + Math.sin(a * .785) * (r + 6)); }
+      sc.text(on ? 'Lumos!' : 'Nox', 54, 24, on ? 9 : 10); } },
+  { n: "Sorting Hat", edge: "#8a5a2b", what: "Sparkle's hat thinks… hmm… then sorts you into a house!",
+    say: "Hmmm, where shall I put you? Lion house!", draw(sc, t) {
+      const k = Math.floor(t / 2500) % 4, thinking = (t % 2500) < 1400;
+      for (let y = 6; y < 32; y++) { const w = (y - 6) * 0.55 + 1; sc.rect(18 - w + (y < 14 ? (14 - y) * .6 : 0), y, w * 2, 1); }
+      sc.rect(4, 31, 30, 3); sc.clear(14, 22, 1); sc.clear(22, 22, 1); sc.line(13, 27, 23, 27 + (thinking ? 0 : 1));
+      sc.text(thinking ? 'hmm' + '.'.repeat(Math.floor(t / 350) % 4) : ['LION!', 'EAGLE!', 'BADGER', 'SNAKE!'][k], 54, 24, 9); } },
+  { n: "Owl Post", edge: "#5a6a8a", what: "Send a secret letter from the web page. An owl flies it to Sparkle's screen!",
+    say: "Hoo hoo! You've got owl post!", draw(sc, t) {
+      const p = (t % 4000) / 4000;
+      if (p < 0.6) { const x = -14 + p / 0.6 * 90, y = 16 + Math.sin(t / 120) * 3, f = Math.floor(t / 120) % 2;
+        sc.disc(x, y, 6); sc.clear(x - 2, y - 2, 2); sc.clear(x + 2, y - 2, 2); sc.set(x - 2, y - 2); sc.set(x + 2, y - 2);
+        sc.line(x - 6, y - 7, x - 3, y - 5); sc.line(x + 6, y - 7, x + 3, y - 5);
+        sc.line(x - 6, y, x - 12, y + (f ? -5 : 4)); sc.line(x + 6, y, x + 12, y + (f ? -5 : 4));
+        sc.frame(x - 4, y + 8, 9, 6); sc.line(x - 4, y + 8, x, y + 11); sc.line(x + 4, y + 8, x, y + 11); }
+      else { sc.frame(6, 10, 26, 18); sc.line(6, 10, 19, 20); sc.line(31, 10, 19, 20); sc.text('post', 53, 16, 8); sc.text('for', 53, 26, 8); sc.text('you!', 53, 36, 8); } } },
+  { n: "Secret Map", edge: "#7a3b1f", what: "A secret page that only opens with the magic password. Then footprints appear!",
+    say: "I solemnly swear that I am up to no good!", draw(sc, t) {
+      const steps = Math.floor((t % 4500) / 300);
+      for (let i = 0; i < Math.min(steps, 12); i++) { const x = 4 + i * 5.5, y = 30 - Math.sin(i * .7) * 8 + (i % 2 ? -3 : 3); sc.rect(x, y, 2, 3); sc.set(x + .5, y - 1); }
+      if (steps >= 13) { sc.rect(0, 0, 72, 40); sc.clear(36, 20, 0); for (let y = 0; y < 40; y++) for (let x = 0; x < 72; x++) sc.px[y * 72 + x] = 0; sc.text('shh!', 36, 18, 10); sc.text('mischief', 36, 32, 8); }
+      else sc.text('shh...', 36, 10, 8); } },
+  { n: "Wand Wave", edge: "#3366ff", what: "Wave Sparkle like a wand (it can feel moving!) and sparks shoot out!",
+    say: "Swish and flick! Sparks!", draw(sc, t) {
+      const a = Math.sin(t / 260) * 0.7 - 0.8, x1 = 14 + Math.cos(a) * 22, y1 = 36 + Math.sin(a) * 22; wand(sc, 14, 36, x1, y1);
+      for (let i = 0; i < 9; i++) { const p = ((t / 900) + i / 9) % 1; sc.sparkle(x1 + p * (30 + i * 3), y1 + Math.sin(i * 2.1) * p * 14, p < .5 ? 1 : 0); }
+      sc.text('zap!', 58, 37, 8); } },
+  { n: "Potion Mixer", edge: "#2fa82f", what: "Pick funny ingredients on the web page. The cauldron bubbles… and something silly happens!",
+    say: "Bubble bubble! Eye of newt and a unicorn hair!", draw(sc, t) {
+      sc.rect(6, 22, 28, 2); for (let y = 24; y < 38; y++) { const w = Math.sqrt(Math.max(0, 14 * 14 - (y - 24) ** 2)); sc.rect(20 - w, y, w * 2, 1); }
+      for (let i = 0; i < 5; i++) { const p = ((t / 1400) + i / 5) % 1; sc.circle(12 + i * 4, 20 - p * 18, p < .7 ? 1 + (i % 2) : 0); }
+      sc.text(Math.floor(t / 800) % 2 ? 'bloop' : 'blip', 54, 18, 8); if ((t % 3200) > 2400) sc.text('MEOW!', 54, 32); } },
+  { n: "Catch the Snitch", edge: "#c8a000", what: "A game! The golden ball zooms around. Clap when it's in the box to catch it!",
+    say: "Catch the snitch! Clap now!", draw(sc, t) {
+      sc.frame(28, 12, 16, 16); const x = 36 + Math.sin(t / 430) * 30, y = 20 + Math.sin(t / 270) * 15, f = Math.floor(t / 80) % 2;
+      sc.disc(x, y, 2); sc.line(x - 3, y, x - 8, y + (f ? -3 : 2)); sc.line(x + 3, y, x + 8, y + (f ? -3 : 2));
+      if (Math.abs(x - 36) < 6 && Math.abs(y - 20) < 6) sc.text('NOW!', 36, 38, 8); } },
+  { n: "Voice Spells", edge: "#9b30ff", what: "The BIG one: teach Sparkle to really hear you say a spell out loud. Real AI magic!",
+    say: "Say a spell out loud, and Sparkle hears you! Real A I magic!", draw(sc, t) {
+      sc.disc(14, 20, 9); sc.clear(14, 20, 7); sc.disc(14, 20, 5); sc.rect(13, 29, 3, 8); sc.rect(8, 37, 13, 2);
+      for (let i = 0; i < 6; i++) { const h = 2 + Math.abs(Math.sin(t / 140 + i * 1.3)) * 10; sc.rect(32 + i * 6, 20 - h / 2, 3, h); }
+      sc.text(Math.floor(t / 1500) % 2 ? 'Lumos!' : 'say it', 50, 38, 8); } },
+];
+
+const grid = document.getElementById('grid'), banner = document.getElementById('banner'), tiles = [];
+let picked = 0;
+function say(text){ try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.pitch = 1.3; u.rate = .95; speechSynthesis.speak(u); } catch(e){} }
+ideas.forEach((d, i) => {
+  const t = document.createElement('div'); t.className = 'tile'; t.style.setProperty('--edge', d.edge);
+  t.innerHTML = `<div class="num">${i+1}</div><div class="stage"><canvas width="216" height="120"></canvas></div>
+    <div class="name">${d.n}</div><div class="what">${d.what}</div>
+    <button class="say">🔊 Say it</button>`;
+  tiles.push({ cv: t.querySelector('canvas'), d });
+  t.querySelector('.say').addEventListener('click', e => { e.stopPropagation(); say(`Number ${i+1}. ${d.n}. ${d.what} ${d.say}`); });
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tile').forEach(el => el.classList.remove('picked')); t.classList.add('picked');
+    banner.textContent = `⚡ Number ${i+1}: ${d.n}! 🪄`; banner.classList.add('show');
+    say(`Yay! Number ${i+1}. ${d.n}! ${d.say}`);
+  });
+  grid.appendChild(t);
+});
+(function loop(now) { tiles.forEach((tile, i) => { const sc = screen(); tile.d.draw(sc, now + i * 700); show(tile.cv, sc); }); requestAnimationFrame(loop); })(0);
+</script>
+</body>
+</html>

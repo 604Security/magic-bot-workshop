@@ -62,6 +62,12 @@ header{text-align:center; padding:22px 16px 6px}
 .t-yellow{background:var(--yellow)} .t-pink{background:var(--pink)} .t-blue{background:var(--blue)}
 .t-green{background:var(--green)} .t-purple{background:var(--purple)} .t-mint{background:var(--mint)} .t-orange{background:var(--orange)}
 .dancecount{font-size:26px; font-weight:700; margin-top:16px}
+.owlsky{position:relative; height:70px; overflow:hidden; font-size:44px}
+#owlbird{position:absolute; left:-120px; top:8px}
+#owlbird.fly{animation:owlfly 3s ease-out forwards}
+@keyframes owlfly{0%{left:-120px; top:20px} 25%{top:0} 50%{top:20px} 75%{top:0} 100%{left:calc(50% - 50px); top:10px}}
+.letters{display:flex; flex-wrap:wrap; gap:12px; margin-top:6px}
+.letters button{font-size:20px}
 .status{text-align:center; color:var(--muted); margin-top:26px; font-size:17px}
 
 .back{display:inline-block; margin:18px 0 4px; padding:6px 14px; border:3px solid var(--line); border-radius:999px;
@@ -156,6 +162,7 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
     <a class="tile t-purple" href="#screen"><span class="emo">🦄</span><b>Screen</b><small>Say hi to my unicorn!</small></a>
     <a class="tile t-green" href="#memory"><span class="emo">💾</span><b>Memory</b><small>Check my memory card</small></a>
     <a class="tile t-mint" href="#wifi"><span class="emo">📶</span><b>Wi-Fi</b><small>How strong is my signal?</small></a>
+    <a class="tile t-blue" href="#owl"><span class="emo">🦉</span><b>Owl Post</b><small>Send a letter by owl!</small></a>
     <a class="tile t-orange" href="#dance"><span class="emo">💃</span><b>Dance</b><small>Clap and my unicorn dances!</small></a>
   </nav>
   <p class="status" id="status">Waking Sparkle up…</p>
@@ -238,6 +245,21 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
   <div class="oled" title="What Sparkle's real screen looks like"><canvas id="danceoled" width="288" height="160" aria-label="Sparkle's screen"></canvas></div>
   <p style="margin-top:18px"><button id="dancebtn">💃 Dance now!</button></p>
   <p class="dancecount" id="dancecount"></p>
+</section>
+
+<!-- ============ OWL POST ============ -->
+<section id="owl" class="panel" hidden>
+  <a class="back" href="#">← Menu</a>
+  <h2>🦉 Owl Post</h2>
+  <p class="hint">Pick a letter, and an owl flies it to Sparkle's screen! ✉️</p>
+  <div class="owlsky"><span id="owlbird">🦉✉️</span></div>
+  <div class="letters" id="letters"></div>
+  <p class="hint" style="margin-top:18px">Or write your own letter (up to 24 letters):</p>
+  <div class="msgrow">
+    <input id="owlmsg" maxlength="24" placeholder="Hello Sparkle!" autocomplete="off">
+    <button id="owlsend">🦉 Send</button>
+  </div>
+  <p class="dancecount" id="owlstatus"></p>
 </section>
 
 <!-- ============ MEMORY ============ -->
@@ -355,7 +377,7 @@ const FACE = {
 };
 
 // ---------- router: each test has its own link, e.g. /#sounds ----------
-const PANELS = ['home', 'lights', 'sounds', 'eyes', 'screen', 'memory', 'wifi', 'dance'];
+const PANELS = ['home', 'lights', 'sounds', 'eyes', 'screen', 'memory', 'wifi', 'dance', 'owl'];
 let timers = [];
 function every(ms, fn) { fn(); timers.push(setInterval(fn, ms)); }
 function stopAll() {
@@ -585,8 +607,26 @@ function startDance() {
   });
 }
 
+// ---------- owl post ----------
+const LETTERS = [['💖', 'I LOVE YOU!'], ['🦉', 'HOOT HOOT!'], ['👋', 'HELLO SPARKLE'], ['✨', 'YOU ARE MAGIC'],
+                 ['🦄', 'UNICORNS RULE'], ['🍪', 'WANT A COOKIE?'], ['🌙', 'NIGHT NIGHT'], ['🕵️', 'TOP SECRET!']];
+function sendOwl(msg) {
+  const bird = $('owlbird');
+  bird.classList.remove('fly'); void bird.offsetWidth; bird.classList.add('fly');
+  $('owlstatus').textContent = '🦉 The owl is flying…';
+  api('/api/owl?msg=' + encodeURIComponent(msg)).then(r => setTimeout(() =>
+    $('owlstatus').textContent = '📬 Delivered! Look at Sparkle\'s screen!', r.fly + 1500)).catch(() =>
+    $('owlstatus').textContent = "😟 The owl got lost. Is Sparkle switched on?");
+}
+LETTERS.forEach(([emo, msg]) => {
+  const b = document.createElement('button'); b.textContent = emo + ' ' + msg; b.onclick = () => sendOwl(msg);
+  $('letters').appendChild(b);
+});
+$('owlsend').onclick = () => { const m = $('owlmsg').value.trim(); if (m) sendOwl(m); };
+function startOwl() { $('owlstatus').textContent = ''; $('owlbird').classList.remove('fly'); }
+
 const START = {home: startHome, lights: startLights, sounds: startSounds, eyes: startEyes,
-               screen: startScreen, memory: startMemory, wifi: startWifi, dance: startDance};
+               screen: startScreen, memory: startMemory, wifi: startWifi, dance: startDance, owl: startOwl};
 route();
 </script>
 </body>
