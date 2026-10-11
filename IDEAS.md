@@ -13,7 +13,7 @@ Every idea goes here, in her words. ✅ = built, 🏅 = badge earned, ⭐ = **ke
 | 7 | 🪄 Make the web page Harry Potter themed | **7: Potions Dungeon** 🧪💚 | ✅ 🏅 *Makeover Wizard* |
 | 8 | 🧪 Potion Mixer (Wizard School) | **6: Potion Mixer**: pick 3 ingredients, shake to stir, then: ingredient pictures drop into the cauldron | ✅ 🏅 *Potion Master* ⭐ keeper |
 | 9 | 🪄 Wand Wave (Wizard School) | **5: Wand Wave**: swish Sparkle to cast Lumos, Accio, Leviosa, Expelliarmus, Stupefy | ✅ 🏅 *Spell Caster* ⭐ keeper |
-| 10 | 💛 The yellow touchscreen (CYD) talks to Sparkle | test first: **📺 Spy Camera** (Sparkle's camera on the yellow screen, tap to snap); 6 ideas still to pick from | ✅ 🏅 *Spy Camera Operator* ⭐ keeper, for the SIA spy game later |
+| 10 | 💛 The yellow touchscreen (CYD) talks to Sparkle | (she hasn't picked yet: `pickers/06-sparkle-friend.html`) | 🎨 choosing |
 
 ## 🏅 Badges
 - 🏅 **Namer**: named the Magic Bot Workshop (2026-10-10)
@@ -25,4 +25,6 @@ Every idea goes here, in her words. ✅ = built, 🏅 = badge earned, ⭐ = **ke
 - 🏅 **Makeover Wizard**: gave Sparkle's web page the spooky green Potions Dungeon look (2026-10-11)
 - 🏅 **Potion Master**: built the Potion Mixer with 12 potions to discover (2026-10-11)
 - 🏅 **Spell Caster**: swished Sparkle like a wand and cast spells (2026-10-11)
-- 🏅 **Spy Camera Operator**: Sparkle's camera shows on the yellow screen over Wi-Fi (2026-10-11)
+
+## 🤫 Grown-up tests (surprises she hasn't seen yet)
+- 📺 **Spy Camera** (`firmware/cyd/cyd_spycam`): Sparkle's camera on the yellow screen. Show her, then let her decide what it's for.

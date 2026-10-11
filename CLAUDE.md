@@ -175,6 +175,7 @@ The app greets her by her real name from `firmware/petbot_test/config.h` (`KID_N
   Potion Mixer ⭐ (`/api/potion`, 10x10 `ICONS`), Wand Wave ⭐ (`/api/wand`, IMU swish `WAVE_G`).
 - [x] 2026-10-11: Main page menu: ✨ Magic Stuff (#magic) and 🔧 Tests (#tests); name via `/api/info` `kid` → `.kid` spans.
 - [x] 2026-10-11: CYD **Spy Camera** ⭐ (`firmware/cyd/cyd_spycam`): CYD finds sparkle.local via mDNS, pulls `/capture` JPEGs, shows
-  them at 1/2 scale (TJpg_Decoder). "Amazing!" To be added to the SIA spy game (SIA-ESP32_spy repo) later.
+  them at 1/2 scale (TJpg_Decoder). Grown-up test ("amazing!"); Megaspy hasn't seen it yet:
+  reveal it to her and let her decide its use. Candidate for the SIA spy game (SIA-ESP32_spy repo).
 - **Plan: final game menu.** When the experiments are done, take every ⭐ keeper in `IDEAS.md` and build a polished game
   menu on the web page. Keep the keeper code intact until then (don't refactor it away).
