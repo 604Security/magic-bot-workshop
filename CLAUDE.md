@@ -109,6 +109,9 @@ The app greets her by her real name from `firmware/petbot_test/config.h` (`KID_N
   `make monitor` is fine in an interactive terminal.
 - **Mic + camera together:** start I2S (the mic) *before* `esp_camera_init()`. If I2S starts after the
   camera (even once, then stopped), `esp_camera_fb_get()` times out from then on. See `petbot_test.ino`.
+- **Upload dies at ~76% with "Could not configure port: (5, 'Input/output error')"** and the board drops off USB
+  (seen 2026-10-11 after the laptop was moved; cable suspected): use **`make flash-safe SKETCH=firmware/petbot_test`**,
+  which uploads in 256 KB pieces. Each piece finishes in ~2 s and verifies its hash.
 - ModemManager is running and can probe ACM ports. It didn't block uploads, but if the port
   acts up: `sudo systemctl stop ModemManager`.
 
