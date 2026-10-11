@@ -70,6 +70,13 @@ header{text-align:center; padding:22px 16px 6px}
 .letters button{font-size:20px}
 .snitchscore{font-size:72px; font-weight:700; margin:10px 0 0}
 #snitchcatch{font-size:30px; padding:14px 30px}
+.hatbig{font-size:110px; line-height:1.1; display:inline-block}
+.hatbig.think{animation:hatwob .3s ease-in-out infinite alternate}
+@keyframes hatwob{from{transform:rotate(-8deg)} to{transform:rotate(8deg)}}
+#hatgo{font-size:28px; padding:12px 26px}
+.house{margin-top:18px; padding:18px 22px; border:3px solid var(--line); border-radius:22px; font-size:34px; font-weight:700;
+  box-shadow:6px 6px 0 var(--line); display:inline-block}
+.house small{display:block; font-size:20px; font-weight:500}
 .status{text-align:center; color:var(--muted); margin-top:26px; font-size:17px}
 
 .back{display:inline-block; margin:18px 0 4px; padding:6px 14px; border:3px solid var(--line); border-radius:999px;
@@ -166,6 +173,7 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
     <a class="tile t-mint" href="#wifi"><span class="emo">📶</span><b>Wi-Fi</b><small>How strong is my signal?</small></a>
     <a class="tile t-blue" href="#owl"><span class="emo">🦉</span><b>Owl Post</b><small>Send a letter by owl!</small></a>
     <a class="tile t-yellow" href="#snitch"><span class="emo">🟡</span><b>Snitch</b><small>Catch the golden snitch!</small></a>
+    <a class="tile t-purple" href="#hat"><span class="emo">🎩</span><b>Sorting Hat</b><small>Which house are you?</small></a>
     <a class="tile t-orange" href="#dance"><span class="emo">💃</span><b>Dance</b><small>Clap and my unicorn dances!</small></a>
   </nav>
   <p class="status" id="status">Waking Sparkle up…</p>
@@ -275,6 +283,16 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
   <p class="hint" id="snitchbest"></p>
   <p style="margin-top:14px"><button id="snitchcatch">✋ Catch!</button> <button id="snitchnew">🔄 New game</button></p>
   <p class="dancecount" id="snitchmsg"></p>
+</section>
+
+<!-- ============ SORTING HAT ============ -->
+<section id="hat" class="panel" hidden>
+  <a class="back" href="#">← Menu</a>
+  <h2>🎩 The Sorting Hat</h2>
+  <p class="hint">Clap your hands 👏 (or press the button) and the Sorting Hat on Sparkle's screen will choose your house!</p>
+  <div class="hatbig" id="hatbig">🎩</div>
+  <p style="margin-top:10px"><button id="hatgo">🎩 Sort me!</button></p>
+  <div class="house" id="house" hidden></div>
 </section>
 
 <!-- ============ MEMORY ============ -->
@@ -392,7 +410,7 @@ const FACE = {
 };
 
 // ---------- router: each test has its own link, e.g. /#sounds ----------
-const PANELS = ['home', 'lights', 'sounds', 'eyes', 'screen', 'memory', 'wifi', 'dance', 'owl', 'snitch'];
+const PANELS = ['home', 'lights', 'sounds', 'eyes', 'screen', 'memory', 'wifi', 'dance', 'owl', 'snitch', 'hat'];
 let timers = [];
 function every(ms, fn) { fn(); timers.push(setInterval(fn, ms)); }
 function stopAll() {
@@ -654,8 +672,31 @@ $('snitchcatch').onclick = () => api('/api/snitch?catch=1').then(() => setTimeou
 $('snitchnew').onclick = () => api('/api/snitch?reset=1').then(showSnitch).catch(() => {});
 function startSnitch() { snitchLast = -1; every(300, () => api('/api/snitch').then(showSnitch).catch(() => {})); }
 
+// ---------- sorting hat ----------
+const HOUSES = [
+  {name: 'GRYFFINDOR!', emo: '🦁', bg: '#B3202A', fg: '#F5C518', say: 'Brave and bold, like a lion!'},
+  {name: 'RAVENCLAW!', emo: '🦅', bg: '#1E3A8A', fg: '#C9A66B', say: 'Clever and wise, like an eagle!'},
+  {name: 'HUFFLEPUFF!', emo: '🦡', bg: '#F2C230', fg: '#222', say: 'Kind and loyal, like a badger!'},
+  {name: 'SLYTHERIN!', emo: '🐍', bg: '#1F6B3A', fg: '#D9D9D9', say: 'Clever and sneaky, like a snake!'},
+];
+let hatShown = -1;
+function hatSay(text) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.pitch = 0.8; u.rate = 0.9; speechSynthesis.speak(u); } catch (e) {} }
+function showHat(r) {
+  $('hatbig').classList.toggle('think', r.state === 'thinking');
+  if (r.state === 'thinking') { $('house').hidden = true; if (hatShown !== -2) hatSay('Hmmm… tricky… very tricky…'); hatShown = -2; }
+  if (r.state === 'done' && hatShown !== r.start) {
+    const h = HOUSES[r.house], first = hatShown === -2;
+    hatShown = r.start;
+    $('house').hidden = false; $('house').style.background = h.bg; $('house').style.color = h.fg;
+    $('house').innerHTML = `${h.emo} ${h.name} ${h.emo}<small>${h.say}</small>`;
+    if (first) hatSay(h.name + ' ' + h.say);
+  }
+}
+$('hatgo').onclick = () => api('/api/hat?go=1').then(showHat).catch(() => {});
+function startHat() { hatShown = -1; every(300, () => api('/api/hat').then(showHat).catch(() => {})); }
+
 const START = {home: startHome, lights: startLights, sounds: startSounds, eyes: startEyes,
-               screen: startScreen, memory: startMemory, wifi: startWifi, dance: startDance, owl: startOwl, snitch: startSnitch};
+               screen: startScreen, memory: startMemory, wifi: startWifi, dance: startDance, owl: startOwl, snitch: startSnitch, hat: startHat};
 route();
 </script>
 </body>

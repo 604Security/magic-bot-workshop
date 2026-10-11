@@ -154,4 +154,7 @@ She goes by **Megaspy** (her spy name, from the SIA spy game). The project is cr
   `firmware/petbot_test/petbot_test.ino`; the OLED says "Hi! Sparkle"; the web page is http://sparkle.local (flashed + verified)
 - [x] 2026-10-11: Unicorn Dance Party (`pickers/03-dance-party.html`, pick 8 Heart Twirl). A clap (`CLAP_LEVEL` 1200) on the
   home or Dance page starts an 8 s dance with 10 hearts; web 💃 Dance page + `/api/dance`. Real claps tested by her ✅
-- [ ] Next: a Harry Potter–style wizard idea (she loves Harry Potter too)
+- [x] 2026-10-11: Wizard School (`pickers/04-wizard-school.html`): Owl Post (pick 3) ⭐, Catch the Snitch (pick 7) ⭐, Sorting Hat (pick 2,
+  `GRYFFINDOR_CHANCE` 55%: her real house). Each has a web panel + `/api/owl`, `/api/snitch`, `/api/hat` and an OLED view.
+- **Plan: final game menu.** When the experiments are done, take every ⭐ keeper in `IDEAS.md` and build a polished game
+  menu on the web page. Keep the keeper code intact until then (don't refactor it away).

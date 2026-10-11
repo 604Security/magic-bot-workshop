@@ -66,8 +66,8 @@ volatile bool sdBusy = false;  // SD test owns GPIO21 while true
 volatile int soundLevel = 0;  // RMS of the latest 50 ms of audio
 volatile int soundPeak = 0;   // loudest since the page last asked
 
-enum ScreenView { V_HOME, V_LIGHTS, V_SOUNDS, V_EYES, V_MEMORY, V_WIFI, V_MESSAGE, V_DANCE, V_OWL, V_SNITCH, V_COUNT };
-const char* VIEW_NAMES[V_COUNT] = {"home", "lights", "sounds", "eyes", "memory", "wifi", "message", "dance", "owl", "snitch"};
+enum ScreenView { V_HOME, V_LIGHTS, V_SOUNDS, V_EYES, V_MEMORY, V_WIFI, V_MESSAGE, V_DANCE, V_OWL, V_SNITCH, V_HAT, V_COUNT };
+const char* VIEW_NAMES[V_COUNT] = {"home", "lights", "sounds", "eyes", "memory", "wifi", "message", "dance", "owl", "snitch", "hat"};
 volatile ScreenView screenView = V_HOME;
 volatile unsigned long danceStart = 0;  // millis() when the dance began, 0 = not dancing
 volatile int danceCount = 0;
@@ -83,7 +83,23 @@ int snitchX = 36, snitchY = 20;
 int snitchScore = 0, snitchBest = 0;
 unsigned long snitchResultAt = 0;     // when the last catch/miss happened
 bool snitchGot = false;
-unsigned long snitchLastInBox = 0;    // last time the snitch was in the box
+unsigned long snitchLastInBox = 0;
+
+// Sorting Hat (Wizard School pick 2): clap and the hat thinks, then picks a house
+#define GRYFFINDOR_CHANCE 55  // out of 100: Megaspy's house comes up the most!
+#define HAT_THINK_MS 3500     // how long the hat goes "hmm..."
+const char* HOUSES[4] = {"GRYFFINDOR!", "RAVENCLAW!", "HUFFLEPUFF!", "SLYTHERIN!"};
+const char* ANIMALS[4] = {"brave lion", "clever eagle", "kind badger", "sly snake"};
+volatile unsigned long hatStart = 0;  // 0 = waiting to sort someone
+volatile int hatHouse = 0;
+
+void startSort() {
+  if (hatStart && millis() - hatStart < HAT_THINK_MS + 1500) return;  // still busy
+  int roll = esp_random() % 100;
+  hatHouse = roll < GRYFFINDOR_CHANCE ? 0 : 1 + (roll - GRYFFINDOR_CHANCE) * 3 / (100 - GRYFFINDOR_CHANCE);
+  unsigned long now = millis();
+  hatStart = now ? now : 1;
+}    // last time the snitch was in the box
 #define CATCH_GRACE_MS 2000           // Megaspy's rule: in the box 2 seconds ago still counts!
 #define BOX 8                         // how far from the middle still counts as "in the box"
 volatile unsigned long owlStart = 0;  // 0 = no letter yet
@@ -186,6 +202,7 @@ void micTask(void*) {
     if (rms > soundPeak) soundPeak = rms;
     // A clap on the home or dance screen starts the Unicorn Dance Party
     if (rms > CLAP_LEVEL && (screenView == V_HOME || screenView == V_DANCE)) startDance();
+    if (rms > CLAP_LEVEL && screenView == V_HAT) startSort();
     // A clap in the snitch game tries to catch it (one try per half second)
     static unsigned long lastClap = 0;
     if (rms > CLAP_LEVEL && screenView == V_SNITCH && millis() - lastClap > 500) {
@@ -445,6 +462,48 @@ void drawSnitch(unsigned long now) {
   else if (snitchInBox()) u8g2.drawStr(28, 39, "NOW!");
 }
 
+void drawHat(int dx, bool talk) {
+  for (int y = 6; y < 32; y++) {
+    float w = (y - 6) * 0.55f + 1;
+    int x = 18 - (int)w + (y < 14 ? (int)((14 - y) * 0.6f) : 0) + dx;
+    u8g2.drawHLine(x, y, (int)(w * 2));
+  }
+  u8g2.drawBox(4 + dx, 31, 30, 3);  // brim
+  u8g2.setDrawColor(0);
+  u8g2.drawDisc(14 + dx, 22, 1);  // eyes
+  u8g2.drawDisc(22 + dx, 22, 1);
+  if (talk) u8g2.drawBox(14 + dx, 26, 9, 3);
+  else u8g2.drawHLine(13 + dx, 27, 11);
+  u8g2.setDrawColor(1);
+}
+
+void drawSortingHat(unsigned long now) {
+  u8g2.setFont(u8g2_font_6x10_tr);
+  if (!hatStart) {  // waiting
+    drawHat(0, false);
+    drawCentered("clap", 16);
+    drawCentered("me!", 28);
+    return;
+  }
+  unsigned long t = now - hatStart;
+  if (t < HAT_THINK_MS) {  // thinking...
+    const char* words[4] = {"hmm...", "tricky", "brave!", "hmm..."};
+    drawHat((t / 200) % 2 ? 1 : -1, (t / 150) % 2);
+    drawCentered(words[(t / 900) % 4], 22);
+    return;
+  }
+  // the answer!
+  u8g2.clearBuffer();
+  int k = (t / 250) % 4;
+  drawSparkle(6, 6, k == 0 ? 3 : 1);
+  drawSparkle(66, 8, k == 2 ? 3 : 1);
+  drawSparkle(64, 34, k == 1 ? 2 : 1);
+  u8g2.setFont(u8g2_font_6x10_tr);
+  u8g2.drawStr((72 - u8g2.getStrWidth(HOUSES[hatHouse])) / 2, 20, HOUSES[hatHouse]);
+  u8g2.setFont(u8g2_font_5x8_tr);
+  u8g2.drawStr((72 - u8g2.getStrWidth(ANIMALS[hatHouse])) / 2, 33, ANIMALS[hatHouse]);
+}
+
 void updateScreen() {
   static unsigned long last = 0;
   unsigned long now = millis();
@@ -454,6 +513,11 @@ void updateScreen() {
   u8g2.clearBuffer();
   if (dancing()) {
     drawHeartTwirl(now - danceStart);
+    u8g2.sendBuffer();
+    return;
+  }
+  if (screenView == V_HAT) {
+    drawSortingHat(now);
     u8g2.sendBuffer();
     return;
   }
@@ -673,6 +737,14 @@ esp_err_t snitchHandler(httpd_req_t* req) {
   return sendJson(req, String("{\"score\":") + snitchScore + ",\"best\":" + snitchBest + "}");
 }
 
+// /api/hat?go=1 starts sorting; returns "thinking", "done" (with the house) or "waiting"
+esp_err_t hatHandler(httpd_req_t* req) {
+  char v[4];
+  if (queryParam(req, "go", v, sizeof(v))) startSort();
+  const char* state = !hatStart ? "waiting" : millis() - hatStart < HAT_THINK_MS ? "thinking" : "done";
+  return sendJson(req, String("{\"state\":\"") + state + "\",\"house\":" + hatHouse + ",\"start\":" + hatStart + "}");
+}
+
 esp_err_t captureHandler(httpd_req_t* req) {
   camera_fb_t* fb = cameraOk ? esp_camera_fb_get() : nullptr;
   if (!fb) {
@@ -723,6 +795,7 @@ void startWeb() {
       {"/api/dance", HTTP_GET, danceHandler, nullptr},
       {"/api/owl", HTTP_GET, owlHandler, nullptr},
       {"/api/snitch", HTTP_GET, snitchHandler, nullptr},
+      {"/api/hat", HTTP_GET, hatHandler, nullptr},
       {"/capture", HTTP_GET, captureHandler, nullptr},
     };
     for (auto& u : uris) httpd_register_uri_handler(web, &u);
