@@ -10,6 +10,8 @@ Every idea goes here, in her words. ✅ = built, 🏅 = badge earned, ⭐ = **ke
 | 4 | 🪄⚡ Harry Potter magic for Sparkle | **3: Owl Post** 🦉✉️ | ✅ 🏅 *Owl Keeper* ⭐ keeper |
 | 5 | 🟡 Catch the Snitch game (Wizard School) | **7: Catch the Snitch** ⚡, then tweaked: her 2-second catch rule, bigger box, hovers in the box | ✅ 🏅 *Seeker* ⭐ keeper |
 | 6 | 🎩 Sorting Hat, and make Gryffindor come up most (her real house!) | **2: Sorting Hat** 🦁, then: shake to sort, shake again to reset, all houses even | ✅ 🏅 *Sorted!* ⭐ keeper |
+| 7 | 🪄 Make the web page Harry Potter themed | (picking a look… `pickers/05-wizard-makeover.html`) | 🎨 choosing |
+| 8 | 🧪 Potion Mixer (Wizard School) | **6: Potion Mixer**: pick 3 ingredients, shake to stir | 🧪 testing |
 
 ## 🏅 Badges
 - 🏅 **Namer**: named the Magic Bot Workshop (2026-10-10)

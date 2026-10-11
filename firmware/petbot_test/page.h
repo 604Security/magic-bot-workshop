@@ -70,6 +70,13 @@ header{text-align:center; padding:22px 16px 6px}
 .letters button{font-size:20px}
 .snitchscore{font-size:72px; font-weight:700; margin:10px 0 0}
 #snitchcatch{font-size:30px; padding:14px 30px}
+.ingredients{display:flex; flex-wrap:wrap; gap:10px; margin:10px 0}
+.ingredients button{font-size:19px}
+.ingredients button.in{background:var(--green); color:var(--tile-ink)}
+.pot{font-size:56px; margin:10px 0 0; min-height:70px}
+#potin{font-size:36px}
+.pot.brew #potemo{display:inline-block; animation:hatwob .15s ease-in-out infinite alternate}
+#recipes{margin-top:18px; font-size:18px}
 .hatbig{font-size:110px; line-height:1.1; display:inline-block}
 .hatbig.think{animation:hatwob .3s ease-in-out infinite alternate}
 @keyframes hatwob{from{transform:rotate(-8deg)} to{transform:rotate(8deg)}}
@@ -174,6 +181,7 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
     <a class="tile t-blue" href="#owl"><span class="emo">🦉</span><b>Owl Post</b><small>Send a letter by owl!</small></a>
     <a class="tile t-yellow" href="#snitch"><span class="emo">🟡</span><b>Snitch</b><small>Catch the golden snitch!</small></a>
     <a class="tile t-purple" href="#hat"><span class="emo">🎩</span><b>Sorting Hat</b><small>Which house are you?</small></a>
+    <a class="tile t-green" href="#potion"><span class="emo">🧪</span><b>Potions</b><small>Mix a silly potion!</small></a>
     <a class="tile t-orange" href="#dance"><span class="emo">💃</span><b>Dance</b><small>Clap and my unicorn dances!</small></a>
   </nav>
   <p class="status" id="status">Waking Sparkle up…</p>
@@ -295,6 +303,18 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
   <div class="house" id="house" hidden></div>
 </section>
 
+<!-- ============ POTION MIXER ============ -->
+<section id="potion" class="panel" hidden>
+  <a class="back" href="#">← Menu</a>
+  <h2>🧪 Potion Mixer</h2>
+  <p class="hint">Pick <b>3 ingredients</b>, then <b>shake Sparkle</b> 🫨 to stir the cauldron (or press Stir). What will happen?!</p>
+  <div class="ingredients" id="ingredients"></div>
+  <div class="pot"><span id="potemo">⚗️</span> <span id="potin"></span></div>
+  <p style="margin-top:10px"><button id="stir">🥄 Stir!</button> <button id="potempty">🔄 Empty</button></p>
+  <div class="house" id="potresult" hidden></div>
+  <div id="recipes"></div>
+</section>
+
 <!-- ============ MEMORY ============ -->
 <section id="memory" class="panel" hidden>
   <a class="back" href="#">← Menu</a>
@@ -410,7 +430,7 @@ const FACE = {
 };
 
 // ---------- router: each test has its own link, e.g. /#sounds ----------
-const PANELS = ['home', 'lights', 'sounds', 'eyes', 'screen', 'memory', 'wifi', 'dance', 'owl', 'snitch', 'hat'];
+const PANELS = ['home', 'lights', 'sounds', 'eyes', 'screen', 'memory', 'wifi', 'dance', 'owl', 'snitch', 'hat', 'potion'];
 let timers = [];
 function every(ms, fn) { fn(); timers.push(setInterval(fn, ms)); }
 function stopAll() {
@@ -696,8 +716,56 @@ function showHat(r) {
 $('hatgo').onclick = () => api('/api/hat?go=1').then(showHat).catch(() => {});
 function startHat() { hatShown = -1; every(300, () => api('/api/hat').then(showHat).catch(() => {})); }
 
+// ---------- potion mixer ----------
+const INGREDIENTS = [['🦄', 'unicorn hair'], ['🐸', 'frog spit'], ['🌈', 'rainbow drops'], ['🕷️', 'spider leg'],
+                     ['🍬', 'candy'], ['🌶️', 'dragon pepper'], ['🪶', 'owl feather'], ['⭐', 'star dust']];
+const POTIONS = [['🐱', "MEOW! YOU'RE A CAT!"], ['💗', 'PINK HAIR!'], ['🕊️', 'YOU CAN FLY!'], ['🫧', 'BUBBLE BURPS!'],
+                 ['🐸', 'RIBBIT! FROG VOICE'], ['👻', "YOU'RE INVISIBLE!"], ['🌟', 'YOU GLOW LIKE A STAR'],
+                 ['🦄', 'UNICORN HORN!'], ['🤧', 'SUPER SNEEZE! ACHOO'], ['🐰', 'GIANT BUNNY EARS!'],
+                 ['🐉', 'YOU BREATHE FIRE!'], ['🍭', 'EVERYTHING TASTES SWEET']];
+let potPicks = [], potShown = 0;
+// the same 3 ingredients always make the same potion, so you can discover them all
+const potionFor = picks => POTIONS[[...picks].sort((a, b) => a - b).reduce((h, i) => h * 11 + i + 1, 0) % POTIONS.length];
+function potRender() {
+  document.querySelectorAll('#ingredients button').forEach((b, i) => b.classList.toggle('in', potPicks.includes(i)));
+  $('potin').textContent = potPicks.map(i => INGREDIENTS[i][0]).join(' ');
+}
+function loadRecipes() { try { return JSON.parse(localStorage.getItem('potions') || '[]'); } catch (e) { return []; } }
+function showRecipes() {
+  const r = loadRecipes();
+  $('recipes').innerHTML = r.length ? `📖 <b>Your potion book (${r.length} of ${POTIONS.length} found):</b> ` + r.join(' · ') : '';
+}
+INGREDIENTS.forEach(([emo, name], i) => {
+  const b = document.createElement('button'); b.textContent = emo + ' ' + name;
+  b.onclick = () => {
+    if (potPicks.includes(i)) potPicks = potPicks.filter(x => x !== i);
+    else if (potPicks.length < 3) potPicks.push(i);
+    potRender();
+    if (potPicks.length === 3) api('/api/potion?msg=' + encodeURIComponent(potionFor(potPicks)[1])).catch(() => {});
+  };
+  $('ingredients').appendChild(b);
+});
+$('stir').onclick = () => api('/api/potion?stir=1').catch(() => {});
+$('potempty').onclick = () => { potPicks = []; potRender(); api('/api/potion?empty=1').catch(() => {}); };
+function showPotion(r) {
+  $('potemo').parentElement.classList.toggle('brew', r.state === 2);
+  if (r.state === 0 && potShown === 3) { potPicks = []; potRender(); }
+  if (r.state === 3 && potShown !== 3 && potPicks.length === 3) {
+    const [emo, text] = potionFor(potPicks);
+    $('potresult').hidden = false; $('potresult').style.background = 'var(--purple)'; $('potresult').style.color = 'var(--tile-ink)';
+    $('potresult').innerHTML = `${emo} ${text} ${emo}`;
+    hatSay(text.replace("'", ''));
+    const book = loadRecipes(), entry = emo + ' ' + text;
+    if (!book.includes(entry)) { book.push(entry); try { localStorage.setItem('potions', JSON.stringify(book)); } catch (e) {} }
+    showRecipes();
+  }
+  if (r.state !== 3) $('potresult').hidden = true;
+  potShown = r.state;
+}
+function startPotion() { potRender(); showRecipes(); every(300, () => api('/api/potion').then(showPotion).catch(() => {})); }
+
 const START = {home: startHome, lights: startLights, sounds: startSounds, eyes: startEyes,
-               screen: startScreen, memory: startMemory, wifi: startWifi, dance: startDance, owl: startOwl, snitch: startSnitch, hat: startHat};
+               screen: startScreen, memory: startMemory, wifi: startWifi, dance: startDance, owl: startOwl, snitch: startSnitch, hat: startHat, potion: startPotion};
 route();
 </script>
 </body>

@@ -66,8 +66,8 @@ volatile bool sdBusy = false;  // SD test owns GPIO21 while true
 volatile int soundLevel = 0;  // RMS of the latest 50 ms of audio
 volatile int soundPeak = 0;   // loudest since the page last asked
 
-enum ScreenView { V_HOME, V_LIGHTS, V_SOUNDS, V_EYES, V_MEMORY, V_WIFI, V_MESSAGE, V_DANCE, V_OWL, V_SNITCH, V_HAT, V_COUNT };
-const char* VIEW_NAMES[V_COUNT] = {"home", "lights", "sounds", "eyes", "memory", "wifi", "message", "dance", "owl", "snitch", "hat"};
+enum ScreenView { V_HOME, V_LIGHTS, V_SOUNDS, V_EYES, V_MEMORY, V_WIFI, V_MESSAGE, V_DANCE, V_OWL, V_SNITCH, V_HAT, V_POTION, V_COUNT };
+const char* VIEW_NAMES[V_COUNT] = {"home", "lights", "sounds", "eyes", "memory", "wifi", "message", "dance", "owl", "snitch", "hat", "potion"};
 volatile ScreenView screenView = V_HOME;
 volatile unsigned long danceStart = 0;  // millis() when the dance began, 0 = not dancing
 volatile int danceCount = 0;
@@ -128,6 +128,18 @@ bool shaken() {
     return true;
   }
   return false;
+}
+
+// Potion Mixer (Wizard School pick 6): pick ingredients on the web page, shake Sparkle to stir
+#define BREW_MS 4000           // how long the cauldron bubbles
+char potionMsg[25] = "";       // what the potion does (the web page picks it from the ingredients)
+volatile int potionState = 0;  // 0 = empty, 1 = ingredients in, 2 = brewing, 3 = done
+unsigned long brewStart = 0;
+
+void startBrew() {
+  if (potionState != 1) return;
+  potionState = 2;
+  brewStart = millis();
 }
 
 void startSort() {
@@ -541,6 +553,41 @@ void drawSortingHat(unsigned long now) {
   u8g2.drawStr((72 - u8g2.getStrWidth(ANIMALS[hatHouse])) / 2, 33, ANIMALS[hatHouse]);
 }
 
+void drawCauldron(int wobble, int bubbleSpeed, unsigned long now) {
+  u8g2.drawBox(6 + wobble, 22, 28, 2);  // rim
+  for (int y = 24; y < 38; y++) {
+    int w = (int)sqrtf(max(0, 14 * 14 - (y - 24) * (y - 24)));
+    u8g2.drawHLine(20 - w + wobble, y, w * 2);
+  }
+  u8g2.drawBox(10 + wobble, 38, 3, 2);  // little feet
+  u8g2.drawBox(27 + wobble, 38, 3, 2);
+  for (int i = 0; i < 5; i++) {  // bubbles rising
+    float p = fmodf(now / (float)bubbleSpeed + i / 5.0f, 1.0f);
+    if (p < 0.7f) u8g2.drawCircle(12 + i * 4 + wobble, 20 - (int)(p * 18), 1 + (i % 2));
+  }
+}
+
+void drawPotion(unsigned long now) {
+  u8g2.setFont(u8g2_font_6x10_tr);
+  if (potionState == 3) {  // the silly result!
+    int k = (now / 250) % 4;
+    drawSparkle(4, 4, k == 0 ? 3 : 1);
+    drawSparkle(67, 36, k == 2 ? 3 : 1);
+    drawLetter(potionMsg);
+    return;
+  }
+  if (potionState == 2) {  // brewing: it wobbles and bubbles fast
+    unsigned long t = now - brewStart;
+    drawCauldron((t / 100) % 2 ? 1 : -1, 500, now);
+    drawCentered((t / 400) % 2 ? "bloop" : "blip!", 22);
+    if (t > BREW_MS) potionState = 3;
+    return;
+  }
+  drawCauldron(0, 1800, now);
+  drawCentered(potionState == 1 ? "shake" : "add", 16);
+  drawCentered(potionState == 1 ? "to stir" : "stuff!", 28);
+}
+
 void updateScreen() {
   static unsigned long last = 0;
   unsigned long now = millis();
@@ -550,6 +597,11 @@ void updateScreen() {
   u8g2.clearBuffer();
   if (dancing()) {
     drawHeartTwirl(now - danceStart);
+    u8g2.sendBuffer();
+    return;
+  }
+  if (screenView == V_POTION) {
+    drawPotion(now);
     u8g2.sendBuffer();
     return;
   }
@@ -782,6 +834,22 @@ esp_err_t hatHandler(httpd_req_t* req) {
   return sendJson(req, String("{\"state\":\"") + state + "\",\"house\":" + hatHouse + ",\"start\":" + hatStart + "}");
 }
 
+// /api/potion?msg=... puts the ingredients in, ?stir=1 brews, ?empty=1 starts again; returns the state
+esp_err_t potionHandler(httpd_req_t* req) {
+  char msg[80], v[4];
+  if (queryParam(req, "msg", msg, sizeof(msg))) {
+    int n = 0;
+    for (char* p = msg; *p && n < 24; p++)
+      if (*p >= 32 && *p < 127) potionMsg[n++] = *p;
+    potionMsg[n] = 0;
+    potionState = 1;
+    screenView = V_POTION;
+  }
+  if (queryParam(req, "stir", v, sizeof(v))) startBrew();
+  if (queryParam(req, "empty", v, sizeof(v))) potionState = 0;
+  return sendJson(req, String("{\"state\":") + potionState + "}");
+}
+
 esp_err_t captureHandler(httpd_req_t* req) {
   camera_fb_t* fb = cameraOk ? esp_camera_fb_get() : nullptr;
   if (!fb) {
@@ -818,7 +886,7 @@ esp_err_t streamHandler(httpd_req_t* req) {
 
 void startWeb() {
   httpd_config_t cfg = HTTPD_DEFAULT_CONFIG();
-  cfg.max_uri_handlers = 12;
+  cfg.max_uri_handlers = 16;
   cfg.stack_size = 8192;
   httpd_handle_t web = nullptr;
   if (httpd_start(&web, &cfg) == ESP_OK) {
@@ -833,6 +901,7 @@ void startWeb() {
       {"/api/owl", HTTP_GET, owlHandler, nullptr},
       {"/api/snitch", HTTP_GET, snitchHandler, nullptr},
       {"/api/hat", HTTP_GET, hatHandler, nullptr},
+      {"/api/potion", HTTP_GET, potionHandler, nullptr},
       {"/capture", HTTP_GET, captureHandler, nullptr},
     };
     for (auto& u : uris) httpd_register_uri_handler(web, &u);
@@ -915,9 +984,15 @@ void loop() {
     snitchTry();
   }
   // Shake on the Sorting Hat: sorts when the hat is waiting, and goes back to the hat when a house is showing
-  if (shaken() && screenView == V_HAT) {
+  bool shake = shaken();
+  if (shake && screenView == V_HAT) {
     if (!hatStart) startSort();
     else if (millis() - hatStart > HAT_THINK_MS) hatStart = 0;
+  }
+  // Shake on the Potion Mixer: stirs the cauldron, or empties it when the potion is done
+  if (shake && screenView == V_POTION) {
+    if (potionState == 1) startBrew();
+    else if (potionState == 3) potionState = 0;
   }
   updateLed();
   updateScreen();
