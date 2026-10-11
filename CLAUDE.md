@@ -45,6 +45,8 @@ The app greets her by her real name from `firmware/petbot_test/config.h` (`KID_N
   Flash it with `make petbot-test`, then open http://sparkle.local (or the IP on serial).
 - `IDEAS.md`: her Idea Board (ideas, picks, badges).
 - `pickers/`: every pick-a-number page she has used.
+- `LEARNING.md`: her logic roadmap (IF/THEN → ELSE → try again → friends & feelings → AND/OR/NOT → find the bug).
+  The game comes first; weave one level into whatever she's building. Start easy and slow.
 - `ROADMAP.md`: the grown-up's TinyML plan from ai-petbot (wake word, pet vision), handy for "make it hear me" or
   "make it see the cat" ideas.
 
