@@ -21,6 +21,7 @@
 #include "secrets.h"
 #include "page.h"
 #include "unicorn.h"
+#include "kind_notes.h"
 
 // Her robot's name (she picked it on pickers/02-robot-name.html). 7 letters max to fit the screen.
 #define ROBOT_NAME "Sparkle"
@@ -75,8 +76,8 @@ volatile bool sdBusy = false;  // SD test owns GPIO21 while true
 volatile int soundLevel = 0;  // RMS of the latest 50 ms of audio
 volatile int soundPeak = 0;   // loudest since the page last asked
 
-enum ScreenView { V_HOME, V_LIGHTS, V_SOUNDS, V_EYES, V_MEMORY, V_WIFI, V_MESSAGE, V_DANCE, V_OWL, V_SNITCH, V_HAT, V_POTION, V_WAND, V_COUNT };
-const char* VIEW_NAMES[V_COUNT] = {"home", "lights", "sounds", "eyes", "memory", "wifi", "message", "dance", "owl", "snitch", "hat", "potion", "wand"};
+enum ScreenView { V_HOME, V_LIGHTS, V_SOUNDS, V_EYES, V_MEMORY, V_WIFI, V_MESSAGE, V_DANCE, V_OWL, V_SNITCH, V_HAT, V_POTION, V_WAND, V_SCORE, V_COUNT };
+const char* VIEW_NAMES[V_COUNT] = {"home", "lights", "sounds", "eyes", "memory", "wifi", "message", "dance", "owl", "snitch", "hat", "potion", "wand", "score"};
 volatile ScreenView screenView = V_HOME;
 volatile unsigned long danceStart = 0;  // millis() when the dance began, 0 = not dancing
 volatile int danceCount = 0;
@@ -192,6 +193,23 @@ void startSort() {
 #define CATCH_GRACE_MS 2000           // Megaspy's rule: in the box 2 seconds ago still counts!
 #define BOX 8                         // how far from the middle still counts as "in the box"
 volatile unsigned long owlStart = 0;  // 0 = no letter yet
+// Sparkle writes back: one of the kind notes in kind_notes.h
+char owlReply[48] = "";
+volatile unsigned long owlReplyAt = 0;  // when Sparkle last sent a letter back (0 = never)
+bool owlReplied = true;                 // already answered the latest letter?
+
+void sendReply() {
+  strncpy(owlReply, KIND_NOTES[esp_random() % KIND_COUNT], sizeof(owlReply) - 1);
+  unsigned long now = millis();
+  owlReplyAt = now ? now : 1;
+  owlReplied = true;
+}
+
+// Snitch scoreboard: the yellow screen runs the game, Sparkle hears the claps and shows the score
+#define SNITCH_WIN 10
+volatile int clapCount = 0;
+int boardScore = 0, boardBest = 0;
+unsigned long boardChangedAt = 0;
 
 bool dancing() { return danceStart && millis() - danceStart < DANCE_MS; }
 void startDance() {
@@ -292,6 +310,11 @@ void micTask(void*) {
     // A clap on the home or dance screen starts the Unicorn Dance Party
     if (rms > CLAP_LEVEL && (screenView == V_HOME || screenView == V_DANCE)) startDance();
     if (rms > CLAP_LEVEL && screenView == V_HAT) startSort();
+    static unsigned long lastBoardClap = 0;
+    if (rms > CLAP_LEVEL && screenView == V_SCORE && millis() - lastBoardClap > 400) {
+      lastBoardClap = millis();
+      clapCount++;
+    }
     // A clap in the snitch game tries to catch it (one try per half second)
     static unsigned long lastClap = 0;
     if (rms > CLAP_LEVEL && screenView == V_SNITCH && millis() - lastClap > 500) {
@@ -482,6 +505,15 @@ void drawLetter(const char* msg) {
 
 void drawOwlPost(unsigned long now) {
   bool flap = (now / 120) % 2;
+  if (owlReplyAt && now - owlReplyAt < 2500) {  // Sparkle's owl flies off with a letter for you
+    unsigned long t = now - owlReplyAt;
+    int x = 20 + (int)(t * 70 / 2500), y = 18 + (int)(sinf(t / 120.0f) * 3);
+    drawOwl(x, y, flap);
+    drawEnvelope(x - 4, y + 9, 9, 6);
+    u8g2.setFont(u8g2_font_5x8_tr);
+    u8g2.drawStr(0, 8, "for you!");
+    return;
+  }
   if (!owlStart) {  // waiting for a letter: the owl sits and blinks
     drawOwl(16, 22, false);
     u8g2.setFont(u8g2_font_6x10_tr);
@@ -502,6 +534,7 @@ void drawOwlPost(unsigned long now) {
     drawCentered("for you!", 34);
   } else {
     drawLetter(owlMsg);
+    if (!owlReplied && t > OWL_FLY_MS + 6000) sendReply();  // Sparkle writes back after reading your letter
   }
 }
 
@@ -651,6 +684,43 @@ void drawWandSpell(unsigned long now) {
   }
 }
 
+// Snitch scoreboard: big score, 10 stars to fill, a party at 10
+void drawStar(int cx, int cy, bool filled) {
+  if (filled) {
+    u8g2.drawTriangle(cx - 3, cy - 1, cx + 3, cy - 1, cx, cy + 3);
+    u8g2.drawTriangle(cx, cy - 3, cx - 2, cy + 3, cx + 2, cy + 3);
+  } else {
+    u8g2.drawPixel(cx, cy - 2);
+    u8g2.drawPixel(cx - 2, cy);
+    u8g2.drawPixel(cx + 2, cy);
+    u8g2.drawPixel(cx, cy + 2);
+  }
+}
+
+void drawScoreboard(unsigned long now) {
+  unsigned long since = now - boardChangedAt;
+  if (boardScore >= SNITCH_WIN) {  // WINNER!
+    int k = (now / 200) % 4;
+    drawSparkle(8, 8, k == 0 ? 4 : 1);
+    drawSparkle(64, 10, k == 1 ? 4 : 1);
+    drawSparkle(10, 32, k == 2 ? 4 : 1);
+    drawSparkle(62, 32, k == 3 ? 4 : 1);
+    u8g2.setFont(u8g2_font_helvB12_tr);
+    u8g2.drawStr((72 - u8g2.getStrWidth("WIN!")) / 2, 26, "WIN!");
+    return;
+  }
+  char buf[8];
+  snprintf(buf, sizeof(buf), "%d", boardScore);
+  u8g2.setFont(u8g2_font_helvB18_tn);
+  int w = u8g2.getStrWidth(buf);
+  u8g2.drawStr(18 - w / 2, 24, buf);
+  u8g2.setFont(u8g2_font_5x8_tr);
+  u8g2.drawStr(40, 10, "of 10");
+  u8g2.drawStr(40, 22, boardChangedAt && since < 1200 ? "GOT IT" : "clap!");
+  for (int i = 0; i < SNITCH_WIN; i++) drawStar(4 + i * 7, 34, i < boardScore);
+  if (boardChangedAt && since < 600) drawSparkle(18, 12, 2 + since / 150);
+}
+
 void drawCauldron(int wobble, int bubbleSpeed, unsigned long now) {
   u8g2.drawBox(6 + wobble, 22, 28, 2);  // rim
   for (int y = 24; y < 38; y++) {
@@ -713,6 +783,11 @@ void updateScreen() {
   u8g2.clearBuffer();
   if (dancing()) {
     drawHeartTwirl(now - danceStart);
+    u8g2.sendBuffer();
+    return;
+  }
+  if (screenView == V_SCORE) {
+    drawScoreboard(now);
     u8g2.sendBuffer();
     return;
   }
@@ -931,9 +1006,11 @@ esp_err_t owlHandler(httpd_req_t* req) {
       if (*p >= 32 && *p < 127) owlMsg[n++] = *p;
     owlMsg[n] = 0;
     owlStart = millis() ? millis() : 1;
+    owlReplied = false;
     screenView = V_OWL;
   }
-  return sendJson(req, String("{\"fly\":") + OWL_FLY_MS + "}");
+  return sendJson(req, String("{\"fly\":") + OWL_FLY_MS + ",\"reply\":\"" + jsonEscape(owlReply) +
+                           "\",\"replyAt\":" + owlReplyAt + "}");
 }
 
 // /api/snitch?catch=1 tries a catch, ?reset=1 starts a new game; always returns the score
@@ -990,6 +1067,19 @@ esp_err_t wandHandler(httpd_req_t* req) {
   return sendJson(req, String("{\"spell\":") + wandSpell + ",\"at\":" + wandAt + "}");
 }
 
+// /api/score?score=N&best=M shows the yellow screen's snitch score; always returns how many claps Sparkle heard
+esp_err_t scoreHandler(httpd_req_t* req) {
+  char v[8];
+  if (queryParam(req, "score", v, sizeof(v))) {
+    int s = atoi(v);
+    if (s != boardScore) boardChangedAt = millis();
+    boardScore = s;
+    screenView = V_SCORE;
+  }
+  if (queryParam(req, "best", v, sizeof(v))) boardBest = atoi(v);
+  return sendJson(req, String("{\"claps\":") + clapCount + ",\"score\":" + boardScore + "}");
+}
+
 esp_err_t captureHandler(httpd_req_t* req) {
   camera_fb_t* fb = cameraOk ? esp_camera_fb_get() : nullptr;
   if (!fb) {
@@ -1043,6 +1133,7 @@ void startWeb() {
       {"/api/hat", HTTP_GET, hatHandler, nullptr},
       {"/api/potion", HTTP_GET, potionHandler, nullptr},
       {"/api/wand", HTTP_GET, wandHandler, nullptr},
+      {"/api/score", HTTP_GET, scoreHandler, nullptr},
       {"/capture", HTTP_GET, captureHandler, nullptr},
     };
     for (auto& u : uris) httpd_register_uri_handler(web, &u);
@@ -1134,6 +1225,7 @@ void loop() {
     else if (millis() - hatStart > HAT_THINK_MS) hatStart = 0;
   }
   // Shake on the Potion Mixer: stirs the cauldron, or empties it when the potion is done
+  if (shake && screenView == V_OWL) sendReply();  // shake Sparkle: it sends you a kind letter
   if (shake && screenView == V_POTION) {
     if (potionState == 1) startBrew();
     else if (potionState == 3) {

@@ -327,6 +327,8 @@ button,.bigbtn{color:var(--tile-ink)}
     <button id="owlsend">🦉 Send</button>
   </div>
   <p class="dancecount" id="owlstatus"></p>
+  <div class="house" id="owlreply" hidden></div>
+  <p class="hint" style="margin-top:12px">💡 Shake Sparkle and it sends <b>you</b> a letter!</p>
 </section>
 
 <!-- ============ SNITCH ============ -->
@@ -736,7 +738,19 @@ LETTERS.forEach(([emo, msg]) => {
   $('letters').appendChild(b);
 });
 $('owlsend').onclick = () => { const m = $('owlmsg').value.trim(); if (m) sendOwl(m); };
-function startOwl() { $('owlstatus').textContent = ''; $('owlbird').classList.remove('fly'); }
+let owlReplySeen = -1;
+function startOwl() {
+  $('owlstatus').textContent = ''; $('owlbird').classList.remove('fly'); owlReplySeen = -1;
+  every(500, () => api('/api/owl').then(r => {
+    if (owlReplySeen === -1) { owlReplySeen = r.replyAt; return; }
+    if (r.replyAt && r.replyAt !== owlReplySeen) {
+      owlReplySeen = r.replyAt;
+      $('owlreply').hidden = false; $('owlreply').style.background = 'var(--blue)'; $('owlreply').style.color = 'var(--tile-ink)';
+      $('owlreply').innerHTML = `💌 Sparkle wrote back:<small>${r.reply}</small>`;
+      hatSay('Sparkle wrote back! ' + r.reply);
+    }
+  }).catch(() => {}));
+}
 
 // ---------- catch the snitch ----------
 let snitchLast = -1;
