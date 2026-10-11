@@ -40,3 +40,21 @@ flash-safe:
 	$(ESPTOOL) write_flash -z 0x0 $(BUILD)/$(notdir $(SKETCH)).ino.bootloader.bin 0x8000 $(BUILD)/$(notdir $(SKETCH)).ino.partitions.bin
 	cd $(BUILD) && rm -f part_* && split -b 262144 -d $(notdir $(SKETCH)).ino.bin part_ && \
 	i=0; for f in part_*; do $(ESPTOOL) write_flash -z $$(printf '0x%x' $$((0x10000 + i * 262144))) $$f || exit 1; i=$$((i + 1)); sleep 1; done
+
+# ---- CYD (Cheap Yellow Display, ESP32-2432S028R, CH340 on /dev/ttyUSB0) ----
+# The 2.8" CYD ships with one of two screen chips; pick it with CYD_SCREEN=st7789 or ili9341.
+#   make cyd-flash CYD_SKETCH=firmware/cyd/cyd_screen_test CYD_SCREEN=st7789
+CYD_FQBN   ?= esp32:esp32:esp32:UploadSpeed=460800
+CYD_PORT   ?= /dev/ttyUSB0
+CYD_SCREEN ?= st7789
+CYD_SKETCH ?= firmware/cyd/cyd_screen_test
+CYD_SETUP   = $(CURDIR)/firmware/cyd/screens/$(CYD_SCREEN).h
+CYD_FLAGS   = --build-property "compiler.cpp.extra_flags=-DUSER_SETUP_LOADED=1 -include $(CYD_SETUP)" \
+              --build-property "compiler.c.extra_flags=-DUSER_SETUP_LOADED=1 -include $(CYD_SETUP)"
+
+.PHONY: cyd-build cyd-flash
+cyd-build:
+	$(CLI) compile --fqbn $(CYD_FQBN) $(CYD_FLAGS) $(CYD_SKETCH)
+
+cyd-flash: cyd-build
+	$(CLI) upload --fqbn $(CYD_FQBN) -p $(CYD_PORT) $(CYD_SKETCH)

@@ -68,6 +68,16 @@ The app greets her by her real name from `firmware/petbot_test/config.h` (`KID_N
 - Reset button, 3.7 V battery connector
 - **Remove the camera heat sink before fitting the expansion board.**
 
+### CYD: Sparkle's friend (Cheap Yellow Display, added 2026-10-11)
+- **ESP32-2432S028R**, 2.8" 320x240 colour touchscreen. ESP32-D0WD-V3, 4 MB flash, **CH340 USB → `/dev/ttyUSB0`**.
+- Screen chip: **ST7789** (verified with `firmware/cyd/cyd_screen_test`: colour bars correct). Screen settings come from
+  the user's fork https://github.com/604Security/SquachWatch-CYD (`include/cyd_user_setup.h`), saved as
+  `firmware/cyd/screens/st7789.h` (+ `ili9341.h` for the other variant). Backlight GPIO21.
+- Touch: XPT2046 on its own SPI: CLK 25, MISO 39, MOSI 32, CS 33, IRQ 36. Also has an RGB LED and a speaker connector.
+- Build/flash: **`make cyd-flash CYD_SKETCH=firmware/cyd/<sketch> CYD_SCREEN=st7789`** (FQBN `esp32:esp32:esp32`).
+  TFT_eSPI 2.5.43 is configured by `-include`-ing the screen header (no editing the library's User_Setup).
+- It was running SquachWatch (serial 2,000,000 baud) before we overwrote it; flash SquachWatch back from the fork if needed.
+
 ## Toolchain
 
 - Arduino IDE 2.x (AppImage in `~/tools/`)
