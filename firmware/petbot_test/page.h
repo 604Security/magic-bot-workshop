@@ -6,9 +6,9 @@ const char PAGE_HTML[] PROGMEM = R"rawliteral(<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sparkle · test</title>
+<title>Sparkle's Potion Dungeon</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Space+Mono:wght@700&family=Henny+Penny&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#FFF6E9; --dot:#FFE3C2; --ink:#2B2D42; --muted:#6B6F80; --card:#FFFFFF; --line:#2B2D42;
@@ -148,9 +148,33 @@ button.on{background:var(--yellow); color:var(--tile-ink)}
 .msgrow input{font:inherit; font-size:22px; padding:10px 14px; border:3px solid var(--line); border-radius:16px; width:min(100%,280px);
   background:var(--card); color:var(--ink); box-shadow:4px 4px 0 var(--line)}
 footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
+
+/* ===== THEME: Potions Dungeon (Megaspy picked look 7 on pickers/05-wizard-makeover.html) =====
+   Delete this block to go back to the old bright look. */
+:root, :root:not(#x){
+  --bg:#0d1410; --dot:#1a2a20; --ink:#c8f7d4; --muted:#8fc9a0; --card:#1b2a21; --line:#4d8a62;
+  --yellow:#3b4a1e; --pink:#4a1f3a; --blue:#1d3346; --green:#1f4a2c; --purple:#33244d; --orange:#4a3018; --mint:#1d4440;
+  --tile-ink:#d4ffe0; --meter:#3dff6e; --track:#1a2a20; --glow:#7dff9d; --unicorn:#7dff9d; --unicorn-hi:#c8ffd6;
+  --magic:"Henny Penny","Fredoka",cursive;
+}
+body{background-color:var(--bg); background-image:radial-gradient(var(--dot) 2px, transparent 2.5px), linear-gradient(#1b2620,#0d1410);
+  background-size:26px 26px, 100% 100%; background-attachment:fixed}
+.banner{color:#7dff9d; text-shadow:0 0 8px #3dff6e}
+.tag{background:#3dff6e; color:#0d1410; border-color:#0d1410}
+h2,.tile b,.bubble,.house,.snitchscore,.dancecount{font-family:var(--magic); font-weight:400; color:#7dff9d; text-shadow:0 0 10px #3dff6e88}
+.house{color:inherit; text-shadow:none}
+.tile{box-shadow:0 0 0 0 transparent, 4px 4px 0 #050a07; border-color:#4d8a62}
+.tile:hover,.tile:focus-visible{box-shadow:0 0 18px #3dff6e88, 6px 6px 0 #050a07}
+.tile small{color:#a9e8b9}
+button,.bigbtn,.back,.pet,.stat,.bubble{box-shadow:0 0 10px #3dff6e44, 3px 3px 0 #050a07}
+button,.bigbtn{color:var(--tile-ink)}
+.bubbles{position:fixed; inset:0; pointer-events:none; z-index:-1; overflow:hidden}
+.bubbles span{position:absolute; bottom:-30px; border:2px solid #3dff6e66; border-radius:50%; animation:rise linear infinite}
+@keyframes rise{from{transform:translateY(0); opacity:.9} to{transform:translateY(-110vh); opacity:0}}
 </style>
 </head>
 <body>
+<div class="bubbles" aria-hidden="true"><span style="left:5%;width:14px;height:14px;animation-duration:11s;animation-delay:-2s"></span><span style="left:14%;width:8px;height:8px;animation-duration:8s;animation-delay:-5s"></span><span style="left:27%;width:20px;height:20px;animation-duration:14s;animation-delay:-1s"></span><span style="left:41%;width:10px;height:10px;animation-duration:9s;animation-delay:-7s"></span><span style="left:55%;width:16px;height:16px;animation-duration:12s;animation-delay:-3s"></span><span style="left:68%;width:9px;height:9px;animation-duration:7s;animation-delay:-4s"></span><span style="left:79%;width:22px;height:22px;animation-duration:15s;animation-delay:-8s"></span><span style="left:90%;width:12px;height:12px;animation-duration:10s;animation-delay:-6s"></span></div>
 <header>
   <div class="hero">
 <pre class="banner" aria-label="Sparkle">  ____                   _    _
@@ -159,7 +183,7 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
   ___) | |_) | (_| | |  |   &lt;| |  __/
  |____/| .__/ \__,_|_|  |_|\_\_|\___|
        |_|</pre>
-    <span class="tag">test!</span>
+    <span class="tag">🧪 potions!</span>
   </div>
 </header>
 
@@ -341,7 +365,7 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
   </dl>
 </section>
 
-<footer>Sparkle test · made with ❤️ for our pet</footer>
+<footer>🧪 Sparkle's Potion Dungeon · created by Megaspy 🦄🕵️</footer>
 </main>
 
 <script>
