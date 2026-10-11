@@ -59,6 +59,9 @@ header{text-align:center; padding:22px 16px 6px}
 .tile .emo{font-size:42px; line-height:1.1}
 .tile b{font-size:27px}
 .tile small{font-size:17px; opacity:.85}
+.bigmenu .tile{padding:30px 24px; align-items:center; text-align:center}
+.bigmenu .tile .emo{font-size:64px}
+.bigmenu .tile b{font-size:36px}
 .t-yellow{background:var(--yellow)} .t-pink{background:var(--pink)} .t-blue{background:var(--blue)}
 .t-green{background:var(--green)} .t-purple{background:var(--purple)} .t-mint{background:var(--mint)} .t-orange{background:var(--orange)}
 .dancecount{font-size:26px; font-weight:700; margin-top:16px}
@@ -193,15 +196,21 @@ button,.bigbtn{color:var(--tile-ink)}
   <div class="greet">
     <pre class="pet" id="pet-home" aria-hidden="true"></pre>
     <canvas class="unicorn small" id="unicorn-home" width="144" height="160" aria-hidden="true"></canvas>
-    <div class="bubble">Hi! I'm Sparkle.<small>What should we test today?</small></div>
+    <div class="bubble">Hi <span class="kid">Megaspy</span>! I'm Sparkle.<small>What shall we do today?</small></div>
   </div>
+  <nav class="tiles bigmenu">
+    <a class="tile t-purple" href="#magic"><span class="emo">✨🪄</span><b>Magic Stuff</b><small>Spells, potions, owls and games!</small></a>
+    <a class="tile t-mint" href="#tests"><span class="emo">🔧</span><b>Tests</b><small>Check my lights, ears, eyes and more</small></a>
+  </nav>
+  <p class="status" id="status">Waking Sparkle up…</p>
+</section>
+
+<!-- ============ ✨ MAGIC STUFF MENU ============ -->
+<section id="magic" class="panel" hidden>
+  <a class="back" href="#">← Home</a>
+  <h2>✨ Magic Stuff</h2>
+  <p class="hint">Pick some magic, <span class="kid">Megaspy</span>! 🪄</p>
   <nav class="tiles">
-    <a class="tile t-yellow" href="#lights"><span class="emo">💡</span><b>Lights</b><small>Make my light blink!</small></a>
-    <a class="tile t-pink" href="#sounds"><span class="emo">🎤</span><b>Sounds</b><small>Clap and watch me hear you!</small></a>
-    <a class="tile t-blue" href="#eyes"><span class="emo">📷</span><b>Eyes</b><small>See what I see!</small></a>
-    <a class="tile t-purple" href="#screen"><span class="emo">🦄</span><b>Screen</b><small>Say hi to my unicorn!</small></a>
-    <a class="tile t-green" href="#memory"><span class="emo">💾</span><b>Memory</b><small>Check my memory card</small></a>
-    <a class="tile t-mint" href="#wifi"><span class="emo">📶</span><b>Wi-Fi</b><small>How strong is my signal?</small></a>
     <a class="tile t-blue" href="#owl"><span class="emo">🦉</span><b>Owl Post</b><small>Send a letter by owl!</small></a>
     <a class="tile t-yellow" href="#snitch"><span class="emo">🟡</span><b>Snitch</b><small>Catch the golden snitch!</small></a>
     <a class="tile t-purple" href="#hat"><span class="emo">🎩</span><b>Sorting Hat</b><small>Which house are you?</small></a>
@@ -209,12 +218,26 @@ button,.bigbtn{color:var(--tile-ink)}
     <a class="tile t-blue" href="#wand"><span class="emo">🪄</span><b>Wand Wave</b><small>Wave me and cast a spell!</small></a>
     <a class="tile t-orange" href="#dance"><span class="emo">💃</span><b>Dance</b><small>Clap and my unicorn dances!</small></a>
   </nav>
-  <p class="status" id="status">Waking Sparkle up…</p>
+</section>
+
+<!-- ============ 🔧 TESTS MENU ============ -->
+<section id="tests" class="panel" hidden>
+  <a class="back" href="#">← Home</a>
+  <h2>🔧 Tests</h2>
+  <p class="hint">Let's check that all of Sparkle works!</p>
+  <nav class="tiles">
+    <a class="tile t-yellow" href="#lights"><span class="emo">💡</span><b>Lights</b><small>Make my light blink!</small></a>
+    <a class="tile t-pink" href="#sounds"><span class="emo">🎤</span><b>Sounds</b><small>Clap and watch me hear you!</small></a>
+    <a class="tile t-blue" href="#eyes"><span class="emo">📷</span><b>Eyes</b><small>See what I see!</small></a>
+    <a class="tile t-purple" href="#screen"><span class="emo">🦄</span><b>Screen</b><small>Say hi to my unicorn!</small></a>
+    <a class="tile t-green" href="#memory"><span class="emo">💾</span><b>Memory</b><small>Check my memory card</small></a>
+    <a class="tile t-mint" href="#wifi"><span class="emo">📶</span><b>Wi-Fi</b><small>How strong is my signal?</small></a>
+  </nav>
 </section>
 
 <!-- ============ LIGHTS ============ -->
 <section id="lights" class="panel" hidden>
-  <a class="back" href="#">← Menu</a>
+  <a class="back" href="#tests">← Tests</a>
   <h2>💡 Lights</h2>
   <p class="hint">Look for the tiny orange light on Sparkle, right next to the USB plug!</p>
   <div class="stage">
@@ -233,7 +256,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ SOUNDS ============ -->
 <section id="sounds" class="panel" hidden>
-  <a class="back" href="#">← Menu</a>
+  <a class="back" href="#tests">← Tests</a>
   <h2>🎤 Sounds</h2>
   <p class="hint">Clap, sing, or whisper. Sparkle is listening!</p>
   <div class="stage">
@@ -252,7 +275,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ EYES ============ -->
 <section id="eyes" class="panel" hidden>
-  <a class="back" href="#">← Menu</a>
+  <a class="back" href="#tests">← Tests</a>
   <h2>📷 Eyes</h2>
   <p class="hint">This is what Sparkle sees right now. Wave hello! 👋</p>
   <div class="tv"><img id="cam" alt="What Sparkle's camera sees"></div>
@@ -265,7 +288,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ SCREEN ============ -->
 <section id="screen" class="panel" hidden>
-  <a class="back" href="#">← Menu</a>
+  <a class="back" href="#tests">← Tests</a>
   <h2>🦄 Screen</h2>
   <p class="hint">Look at Sparkle's tiny screen. Is the unicorn there? It blinks and sparkles! (The real screen can only show white, so here she is in pink. 💖)</p>
   <div class="stage">
@@ -283,7 +306,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ DANCE ============ -->
 <section id="dance" class="panel" hidden>
-  <a class="back" href="#">← Menu</a>
+  <a class="back" href="#magic">← Magic Stuff</a>
   <h2>💃 Unicorn Dance Party</h2>
   <p class="hint">Clap your hands loud! 👏 Sparkle's unicorn does the <b>Heart Twirl</b>. 💕</p>
   <div class="oled" title="What Sparkle's real screen looks like"><canvas id="danceoled" width="288" height="160" aria-label="Sparkle's screen"></canvas></div>
@@ -293,7 +316,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ OWL POST ============ -->
 <section id="owl" class="panel" hidden>
-  <a class="back" href="#">← Menu</a>
+  <a class="back" href="#magic">← Magic Stuff</a>
   <h2>🦉 Owl Post</h2>
   <p class="hint">Pick a letter, and an owl flies it to Sparkle's screen! ✉️</p>
   <div class="owlsky"><span id="owlbird">🦉✉️</span></div>
@@ -308,7 +331,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ SNITCH ============ -->
 <section id="snitch" class="panel" hidden>
-  <a class="back" href="#">← Menu</a>
+  <a class="back" href="#magic">← Magic Stuff</a>
   <h2>🟡 Catch the Snitch</h2>
   <p class="hint">Watch Sparkle's screen! When the golden snitch flies into the box (it says <b>NOW!</b>), <b>CLAP</b>! 👏<br>
     Every catch makes it fly faster. ⚡</p>
@@ -320,7 +343,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ SORTING HAT ============ -->
 <section id="hat" class="panel" hidden>
-  <a class="back" href="#">← Menu</a>
+  <a class="back" href="#magic">← Magic Stuff</a>
   <h2>🎩 The Sorting Hat</h2>
   <p class="hint"><b>Shake Sparkle</b> 🫨 (or clap 👏, or press the button) and the Sorting Hat will choose your house! Shake again to go back to the hat for the next person.</p>
   <div class="hatbig" id="hatbig">🎩</div>
@@ -330,7 +353,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ POTION MIXER ============ -->
 <section id="potion" class="panel" hidden>
-  <a class="back" href="#">← Menu</a>
+  <a class="back" href="#magic">← Magic Stuff</a>
   <h2>🧪 Potion Mixer</h2>
   <p class="hint">Pick <b>3 ingredients</b>, then <b>shake Sparkle</b> 🫨 to stir the cauldron (or press Stir). What will happen?!</p>
   <div class="ingredients" id="ingredients"></div>
@@ -342,7 +365,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ WAND WAVE ============ -->
 <section id="wand" class="panel" hidden>
-  <a class="back" href="#">← Menu</a>
+  <a class="back" href="#magic">← Magic Stuff</a>
   <h2>🪄 Wand Wave</h2>
   <p class="hint"><b>Hold Sparkle like a wand and give it a big swish!</b> 🫴 It casts a spell. Watch its screen! (Or press Cast.)</p>
   <div class="hatbig" id="wandbig">🪄</div>
@@ -353,7 +376,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ MEMORY ============ -->
 <section id="memory" class="panel" hidden>
-  <a class="back" href="#">← Menu</a>
+  <a class="back" href="#tests">← Tests</a>
   <h2>💾 Memory</h2>
   <p class="hint">Sparkle keeps its sound recordings on a tiny memory card. Let's check it works!</p>
   <button class="bigbtn" id="sdgo">🔍 Check my memory card</button>
@@ -362,7 +385,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ WIFI ============ -->
 <section id="wifi" class="panel" hidden>
-  <a class="back" href="#">← Menu</a>
+  <a class="back" href="#tests">← Tests</a>
   <h2>📶 Wi-Fi</h2>
   <p class="hint">Sparkle talks to this page over Wi-Fi. More green bars = stronger signal.</p>
   <div class="wifi">
@@ -377,7 +400,7 @@ button,.bigbtn{color:var(--tile-ink)}
   </dl>
 </section>
 
-<footer>🧪 Sparkle's Potion Dungeon · created by Megaspy 🦄🕵️</footer>
+<footer>🧪 Sparkle's Potion Dungeon · created by <span class="kid">Megaspy</span> 🦄🕵️</footer>
 </main>
 
 <script>
@@ -466,7 +489,7 @@ const FACE = {
 };
 
 // ---------- router: each test has its own link, e.g. /#sounds ----------
-const PANELS = ['home', 'lights', 'sounds', 'eyes', 'screen', 'memory', 'wifi', 'dance', 'owl', 'snitch', 'hat', 'potion', 'wand'];
+const PANELS = ['home', 'magic', 'tests', 'lights', 'sounds', 'eyes', 'screen', 'memory', 'wifi', 'dance', 'owl', 'snitch', 'hat', 'potion', 'wand'];
 let timers = [];
 function every(ms, fn) { fn(); timers.push(setInterval(fn, ms)); }
 function stopAll() {
@@ -479,7 +502,8 @@ function route() {
   PANELS.forEach(p => $(p).hidden = p !== cur);
   stopAll();
   START[cur]();
-  if (cur !== 'screen') fetch('/api/screen?view=' + cur).catch(() => {});
+  const view = cur === 'magic' || cur === 'tests' ? 'home' : cur;
+  if (cur !== 'screen') fetch('/api/screen?view=' + view).catch(() => {});
   window.scrollTo(0, 0);
 }
 addEventListener('hashchange', route);
@@ -823,7 +847,10 @@ function showWand(r) {
 $('wandcast').onclick = () => api('/api/wand?cast=1').catch(() => {});
 function startWand() { wandSeen = -1; every(250, () => api('/api/wand').then(r => { if (wandSeen === -1) wandSeen = r.at || 0; showWand(r); }).catch(() => {})); }
 
-const START = {home: startHome, lights: startLights, sounds: startSounds, eyes: startEyes,
+// the kid's name comes from config.h on Sparkle (so the real name never goes to GitHub)
+api('/api/info').then(i => { if (i.kid) document.querySelectorAll('.kid').forEach(e => e.textContent = i.kid); }).catch(() => {});
+
+const START = {magic: () => {}, tests: () => {}, home: startHome, lights: startLights, sounds: startSounds, eyes: startEyes,
                screen: startScreen, memory: startMemory, wifi: startWifi, dance: startDance, owl: startOwl, snitch: startSnitch, hat: startHat, potion: startPotion, wand: startWand};
 route();
 </script>

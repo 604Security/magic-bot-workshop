@@ -26,6 +26,15 @@
 #define ROBOT_NAME "Sparkle"
 #define ROBOT_HOST "sparkle"  // web address: http://sparkle.local
 
+// The kid's name lives in config.h, which git ignores, so her real name stays off GitHub.
+// Copy config.h.example to config.h and put her name in it.
+#if __has_include("config.h")
+#include "config.h"
+#endif
+#ifndef KID_NAME
+#define KID_NAME "Megaspy"
+#endif
+
 // Unicorn Dance Party (she picked dance 8, Heart Twirl, on pickers/03-dance-party.html)
 #define CLAP_LEVEL 1200  // how loud a clap must be (quiet room ~20, talking ~100-500)
 #define DANCE_MS   8000  // how long the unicorn dances after a clap (she asked for longer!)
@@ -867,7 +876,7 @@ esp_err_t infoHandler(httpd_req_t* req) {
              "\",\"rssi\":" + WiFi.RSSI() + ",\"channel\":" + WiFi.channel() +
              ",\"camera\":" + (cameraOk ? "true" : "false") + ",\"mic\":" + (micOk ? "true" : "false") +
              ",\"screen\":" + (screenOk ? "true" : "false") + ",\"led\":\"" + LED_MODE_NAMES[ledMode] +
-             "\",\"uptime\":" + (millis() / 1000) + "}";
+             "\",\"uptime\":" + (millis() / 1000) + ",\"kid\":\"" + jsonEscape(KID_NAME) + "\"}";
   return sendJson(req, j);
 }
 

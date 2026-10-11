@@ -8,3 +8,6 @@ XIAO-ESP32S3-Sense/
 
 # Wi-Fi credentials
 secrets.h
+
+# Kid's real name (config.h.example with "Megaspy" is committed instead)
+config.h

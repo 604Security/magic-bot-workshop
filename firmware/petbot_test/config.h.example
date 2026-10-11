@@ -1,0 +1,3 @@
+// Copy this file to config.h (git ignores config.h) and change the name.
+// The robot's web page uses it: "Hi Megaspy! I'm Sparkle."
+#define KID_NAME "Megaspy"
