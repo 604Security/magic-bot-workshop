@@ -199,7 +199,7 @@ button,.bigbtn{color:var(--tile-ink)}
     <div class="bubble">Hi <span class="kid">Megaspy</span>! I'm Sparkle.<small>What shall we do today?</small></div>
   </div>
   <nav class="tiles bigmenu">
-    <a class="tile t-purple" href="#magic"><span class="emo">✨🪄</span><b>Magic Stuff</b><small>Spells, potions, owls and games!</small></a>
+    <a class="tile t-purple" href="#magic"><span class="emo">🏰🪄</span><b>Hogwarts</b><small>Spells, potions, owls and games!</small></a>
     <a class="tile t-mint" href="#tests"><span class="emo">🔧</span><b>Tests</b><small>Check my lights, ears, eyes and more</small></a>
   </nav>
   <p class="status" id="status">Waking Sparkle up…</p>
@@ -208,8 +208,8 @@ button,.bigbtn{color:var(--tile-ink)}
 <!-- ============ ✨ MAGIC STUFF MENU ============ -->
 <section id="magic" class="panel" hidden>
   <a class="back" href="#">← Home</a>
-  <h2>✨ Magic Stuff</h2>
-  <p class="hint">Pick some magic, <span class="kid">Megaspy</span>! 🪄</p>
+  <h2>🕯️ Great Hall</h2>
+  <p class="hint">Welcome to Hogwarts, <span class="kid">Megaspy</span>! Pick some magic. 🪄</p>
   <nav class="tiles">
     <a class="tile t-blue" href="#owl"><span class="emo">🦉</span><b>Owl Post</b><small>Send a letter by owl!</small></a>
     <a class="tile t-yellow" href="#snitch"><span class="emo">🟡</span><b>Snitch</b><small>Catch the golden snitch!</small></a>
@@ -306,7 +306,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ DANCE ============ -->
 <section id="dance" class="panel" hidden>
-  <a class="back" href="#magic">← Magic Stuff</a>
+  <a class="back" href="#magic">← Great Hall</a>
   <h2>💃 Unicorn Dance Party</h2>
   <p class="hint">Clap your hands loud! 👏 Sparkle's unicorn does the <b>Heart Twirl</b>. 💕</p>
   <div class="oled" title="What Sparkle's real screen looks like"><canvas id="danceoled" width="288" height="160" aria-label="Sparkle's screen"></canvas></div>
@@ -316,7 +316,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ OWL POST ============ -->
 <section id="owl" class="panel" hidden>
-  <a class="back" href="#magic">← Magic Stuff</a>
+  <a class="back" href="#magic">← Great Hall</a>
   <h2>🦉 Owl Post</h2>
   <p class="hint">Pick a letter, and an owl flies it to Sparkle's screen! ✉️</p>
   <div class="owlsky"><span id="owlbird">🦉✉️</span></div>
@@ -331,7 +331,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ SNITCH ============ -->
 <section id="snitch" class="panel" hidden>
-  <a class="back" href="#magic">← Magic Stuff</a>
+  <a class="back" href="#magic">← Great Hall</a>
   <h2>🟡 Catch the Snitch</h2>
   <p class="hint">Watch Sparkle's screen! When the golden snitch flies into the box (it says <b>NOW!</b>), <b>CLAP</b>! 👏<br>
     Every catch makes it fly faster. ⚡</p>
@@ -343,7 +343,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ SORTING HAT ============ -->
 <section id="hat" class="panel" hidden>
-  <a class="back" href="#magic">← Magic Stuff</a>
+  <a class="back" href="#magic">← Great Hall</a>
   <h2>🎩 The Sorting Hat</h2>
   <p class="hint"><b>Shake Sparkle</b> 🫨 (or clap 👏, or press the button) and the Sorting Hat will choose your house! Shake again to go back to the hat for the next person.</p>
   <div class="hatbig" id="hatbig">🎩</div>
@@ -353,7 +353,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ POTION MIXER ============ -->
 <section id="potion" class="panel" hidden>
-  <a class="back" href="#magic">← Magic Stuff</a>
+  <a class="back" href="#magic">← Great Hall</a>
   <h2>🧪 Potion Mixer</h2>
   <p class="hint">Pick <b>3 ingredients</b>, then <b>shake Sparkle</b> 🫨 to stir the cauldron (or press Stir). What will happen?!</p>
   <div class="ingredients" id="ingredients"></div>
@@ -365,7 +365,7 @@ button,.bigbtn{color:var(--tile-ink)}
 
 <!-- ============ WAND WAVE ============ -->
 <section id="wand" class="panel" hidden>
-  <a class="back" href="#magic">← Magic Stuff</a>
+  <a class="back" href="#magic">← Great Hall</a>
   <h2>🪄 Wand Wave</h2>
   <p class="hint"><b>Hold Sparkle like a wand and give it a big swish!</b> 🫴 It casts a spell. Watch its screen! (Or press Cast.)</p>
   <div class="hatbig" id="wandbig">🪄</div>
