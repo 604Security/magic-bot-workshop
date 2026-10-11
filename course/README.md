@@ -4,7 +4,7 @@ A hands-on course where a child (age ~6–10) **designs** and an AI coding assis
 robot. The child never has to type: they bring ideas, pick from moving "pick-a-number" previews, and ask for tweaks.
 A grown-up drives the keyboard, approves anything technical or online, and turns each build into a small lesson.
 
-Built from the real **Magic Bot Workshop** sessions, created by **Megaspy** (age 7) with the robot **Sparkle**.
+**Shared in the hope that other families find it useful.** Built from the real **Magic Bot Workshop** sessions, created by **Megaspy** (age 7) with the robot **Sparkle**.
 
 ## Who it's for
 - **Kid:** ages 6–10, no reading fluency needed (every choice has 🔊 read-aloud). Loves stories, animals, magic, spies.
@@ -12,8 +12,9 @@ Built from the real **Magic Bot Workshop** sessions, created by **Megaspy** (age
 
 ## Hardware
 - **Sparkle:** Seeed XIAO ESP32S3 Sense in the XIAOML Kit (camera, mic, motion sensor, tiny 72×40 screen), ~US$39.
-- **Optional friend:** "Cheap Yellow Display" (ESP32-2432S028R), 2.8" colour touchscreen, ~US$15.
+- **Optional friend:** "Cheap Yellow Display" (ESP32-2432S028R), 2.8" colour touchscreen, ~US$10–20.
 - A laptop, a good USB-C **data** cable, home Wi-Fi.
+- Full list, tips and gotchas: **[equipment.md](equipment.md)**.
 
 ## The method (used in every lab)
 1. **Idea**: the kid says it in their own words; write it on the Idea Board (`IDEAS.md`).
