@@ -68,6 +68,8 @@ header{text-align:center; padding:22px 16px 6px}
 @keyframes owlfly{0%{left:-120px; top:20px} 25%{top:0} 50%{top:20px} 75%{top:0} 100%{left:calc(50% - 50px); top:10px}}
 .letters{display:flex; flex-wrap:wrap; gap:12px; margin-top:6px}
 .letters button{font-size:20px}
+.snitchscore{font-size:72px; font-weight:700; margin:10px 0 0}
+#snitchcatch{font-size:30px; padding:14px 30px}
 .status{text-align:center; color:var(--muted); margin-top:26px; font-size:17px}
 
 .back{display:inline-block; margin:18px 0 4px; padding:6px 14px; border:3px solid var(--line); border-radius:999px;
@@ -163,6 +165,7 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
     <a class="tile t-green" href="#memory"><span class="emo">💾</span><b>Memory</b><small>Check my memory card</small></a>
     <a class="tile t-mint" href="#wifi"><span class="emo">📶</span><b>Wi-Fi</b><small>How strong is my signal?</small></a>
     <a class="tile t-blue" href="#owl"><span class="emo">🦉</span><b>Owl Post</b><small>Send a letter by owl!</small></a>
+    <a class="tile t-yellow" href="#snitch"><span class="emo">🟡</span><b>Snitch</b><small>Catch the golden snitch!</small></a>
     <a class="tile t-orange" href="#dance"><span class="emo">💃</span><b>Dance</b><small>Clap and my unicorn dances!</small></a>
   </nav>
   <p class="status" id="status">Waking Sparkle up…</p>
@@ -260,6 +263,18 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
     <button id="owlsend">🦉 Send</button>
   </div>
   <p class="dancecount" id="owlstatus"></p>
+</section>
+
+<!-- ============ SNITCH ============ -->
+<section id="snitch" class="panel" hidden>
+  <a class="back" href="#">← Menu</a>
+  <h2>🟡 Catch the Snitch</h2>
+  <p class="hint">Watch Sparkle's screen! When the golden snitch flies into the box (it says <b>NOW!</b>), <b>CLAP</b>! 👏<br>
+    Every catch makes it fly faster. ⚡</p>
+  <p class="snitchscore"><span id="snitchscore">0</span> ⭐</p>
+  <p class="hint" id="snitchbest"></p>
+  <p style="margin-top:14px"><button id="snitchcatch">✋ Catch!</button> <button id="snitchnew">🔄 New game</button></p>
+  <p class="dancecount" id="snitchmsg"></p>
 </section>
 
 <!-- ============ MEMORY ============ -->
@@ -377,7 +392,7 @@ const FACE = {
 };
 
 // ---------- router: each test has its own link, e.g. /#sounds ----------
-const PANELS = ['home', 'lights', 'sounds', 'eyes', 'screen', 'memory', 'wifi', 'dance', 'owl'];
+const PANELS = ['home', 'lights', 'sounds', 'eyes', 'screen', 'memory', 'wifi', 'dance', 'owl', 'snitch'];
 let timers = [];
 function every(ms, fn) { fn(); timers.push(setInterval(fn, ms)); }
 function stopAll() {
@@ -625,8 +640,22 @@ LETTERS.forEach(([emo, msg]) => {
 $('owlsend').onclick = () => { const m = $('owlmsg').value.trim(); if (m) sendOwl(m); };
 function startOwl() { $('owlstatus').textContent = ''; $('owlbird').classList.remove('fly'); }
 
+// ---------- catch the snitch ----------
+let snitchLast = -1;
+const CHEERS = ['⚡ GOT IT!', '🧹 Amazing catch!', '🏆 You are a Seeker!', '✨ Wow, so fast!', '🟡 Gotcha!'];
+function showSnitch(r) {
+  if (snitchLast >= 0 && r.score > snitchLast) $('snitchmsg').textContent = CHEERS[r.score % CHEERS.length];
+  if (r.score === 0) $('snitchmsg').textContent = '';
+  snitchLast = r.score;
+  $('snitchscore').textContent = r.score;
+  $('snitchbest').textContent = r.best ? `🏆 Best score: ${r.best}` : '';
+}
+$('snitchcatch').onclick = () => api('/api/snitch?catch=1').then(() => setTimeout(() => api('/api/snitch').then(showSnitch), 100)).catch(() => {});
+$('snitchnew').onclick = () => api('/api/snitch?reset=1').then(showSnitch).catch(() => {});
+function startSnitch() { snitchLast = -1; every(300, () => api('/api/snitch').then(showSnitch).catch(() => {})); }
+
 const START = {home: startHome, lights: startLights, sounds: startSounds, eyes: startEyes,
-               screen: startScreen, memory: startMemory, wifi: startWifi, dance: startDance, owl: startOwl};
+               screen: startScreen, memory: startMemory, wifi: startWifi, dance: startDance, owl: startOwl, snitch: startSnitch};
 route();
 </script>
 </body>

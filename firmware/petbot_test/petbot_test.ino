@@ -66,8 +66,8 @@ volatile bool sdBusy = false;  // SD test owns GPIO21 while true
 volatile int soundLevel = 0;  // RMS of the latest 50 ms of audio
 volatile int soundPeak = 0;   // loudest since the page last asked
 
-enum ScreenView { V_HOME, V_LIGHTS, V_SOUNDS, V_EYES, V_MEMORY, V_WIFI, V_MESSAGE, V_DANCE, V_OWL, V_COUNT };
-const char* VIEW_NAMES[V_COUNT] = {"home", "lights", "sounds", "eyes", "memory", "wifi", "message", "dance", "owl"};
+enum ScreenView { V_HOME, V_LIGHTS, V_SOUNDS, V_EYES, V_MEMORY, V_WIFI, V_MESSAGE, V_DANCE, V_OWL, V_SNITCH, V_COUNT };
+const char* VIEW_NAMES[V_COUNT] = {"home", "lights", "sounds", "eyes", "memory", "wifi", "message", "dance", "owl", "snitch"};
 volatile ScreenView screenView = V_HOME;
 volatile unsigned long danceStart = 0;  // millis() when the dance began, 0 = not dancing
 volatile int danceCount = 0;
@@ -75,6 +75,14 @@ volatile int danceCount = 0;
 // Owl Post (Wizard School pick 3): an owl flies a letter onto the screen
 #define OWL_FLY_MS 3000  // how long the owl flies before the letter opens
 char owlMsg[25] = "";
+
+// Catch the Snitch (Wizard School pick 7): clap when the snitch is in the box
+volatile bool snitchClap = false;     // a clap (or the web Catch button) is waiting to be checked
+float snitchPhase = 0;                // how far along its zig-zag path the snitch is
+int snitchX = 36, snitchY = 20;
+int snitchScore = 0, snitchBest = 0;
+unsigned long snitchResultAt = 0;     // when the last catch/miss happened
+bool snitchGot = false;
 volatile unsigned long owlStart = 0;  // 0 = no letter yet
 
 bool dancing() { return danceStart && millis() - danceStart < DANCE_MS; }
@@ -175,6 +183,12 @@ void micTask(void*) {
     if (rms > soundPeak) soundPeak = rms;
     // A clap on the home or dance screen starts the Unicorn Dance Party
     if (rms > CLAP_LEVEL && (screenView == V_HOME || screenView == V_DANCE)) startDance();
+    // A clap in the snitch game tries to catch it (one try per half second)
+    static unsigned long lastClap = 0;
+    if (rms > CLAP_LEVEL && screenView == V_SNITCH && millis() - lastClap > 500) {
+      lastClap = millis();
+      snitchClap = true;
+    }
   }
 }
 
@@ -382,6 +396,49 @@ void drawOwlPost(unsigned long now) {
   }
 }
 
+bool snitchInBox() { return abs(snitchX - 36) <= 6 && abs(snitchY - 20) <= 6; }
+
+void snitchTry() {
+  snitchGot = snitchInBox();
+  snitchResultAt = millis();
+  if (snitchGot) {
+    snitchScore++;
+    if (snitchScore > snitchBest) snitchBest = snitchScore;
+  }
+}
+
+void drawSnitch(unsigned long now) {
+  static unsigned long last = now;
+  unsigned long since = now - snitchResultAt;
+  if (!(snitchGot && snitchResultAt && since < 1200)) {  // it stops while you celebrate a catch
+    float speed = 1.0f + min(snitchScore, 12) * 0.15f;  // faster after every catch!
+    snitchPhase += (now - last) * speed;
+  }
+  last = now;
+  snitchX = 36 + (int)lroundf(sinf(snitchPhase / 430.0f) * 30);
+  snitchY = 20 + (int)lroundf(sinf(snitchPhase / 270.0f) * 15);
+
+  u8g2.setFont(u8g2_font_5x8_tr);
+  u8g2.setCursor(0, 7);
+  u8g2.print(snitchScore);
+  if (snitchGot && snitchResultAt && since < 1200) {  // caught it!
+    int r = 2 + since / 150;
+    drawSparkle(36, 20, min(r, 8));
+    drawSparkle(12, 10, r / 2);
+    drawSparkle(60, 30, r / 2);
+    u8g2.setFont(u8g2_font_6x10_tr);
+    u8g2.drawStr(15, 38, "GOT IT!");
+    return;
+  }
+  u8g2.drawFrame(28, 12, 17, 17);
+  bool flap = (now / 80) % 2;
+  u8g2.drawDisc(snitchX, snitchY, 2);
+  u8g2.drawLine(snitchX - 3, snitchY, snitchX - 8, snitchY + (flap ? -3 : 2));
+  u8g2.drawLine(snitchX + 3, snitchY, snitchX + 8, snitchY + (flap ? -3 : 2));
+  if (snitchResultAt && !snitchGot && since < 600) u8g2.drawStr(26, 39, "miss!");
+  else if (snitchInBox()) u8g2.drawStr(28, 39, "NOW!");
+}
+
 void updateScreen() {
   static unsigned long last = 0;
   unsigned long now = millis();
@@ -391,6 +448,11 @@ void updateScreen() {
   u8g2.clearBuffer();
   if (dancing()) {
     drawHeartTwirl(now - danceStart);
+    u8g2.sendBuffer();
+    return;
+  }
+  if (screenView == V_SNITCH) {
+    drawSnitch(now);
     u8g2.sendBuffer();
     return;
   }
@@ -594,6 +656,17 @@ esp_err_t owlHandler(httpd_req_t* req) {
   return sendJson(req, String("{\"fly\":") + OWL_FLY_MS + "}");
 }
 
+// /api/snitch?catch=1 tries a catch, ?reset=1 starts a new game; always returns the score
+esp_err_t snitchHandler(httpd_req_t* req) {
+  char v[4];
+  if (queryParam(req, "catch", v, sizeof(v))) snitchClap = true;
+  if (queryParam(req, "reset", v, sizeof(v))) {
+    snitchScore = 0;
+    snitchResultAt = 0;
+  }
+  return sendJson(req, String("{\"score\":") + snitchScore + ",\"best\":" + snitchBest + "}");
+}
+
 esp_err_t captureHandler(httpd_req_t* req) {
   camera_fb_t* fb = cameraOk ? esp_camera_fb_get() : nullptr;
   if (!fb) {
@@ -643,6 +716,7 @@ void startWeb() {
       {"/api/screen", HTTP_GET, screenHandler, nullptr},
       {"/api/dance", HTTP_GET, danceHandler, nullptr},
       {"/api/owl", HTTP_GET, owlHandler, nullptr},
+      {"/api/snitch", HTTP_GET, snitchHandler, nullptr},
       {"/capture", HTTP_GET, captureHandler, nullptr},
     };
     for (auto& u : uris) httpd_register_uri_handler(web, &u);
@@ -719,6 +793,10 @@ void setup() {
 }
 
 void loop() {
+  if (snitchClap) {
+    snitchClap = false;
+    snitchTry();
+  }
   updateLed();
   updateScreen();
   if (Serial.available()) {
