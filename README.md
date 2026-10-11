@@ -57,3 +57,11 @@ Then type **`/sparkle`**. Claude checks the robot, opens its web page, and asks 
 Started from `ai-petbot`. See [CLAUDE.md](CLAUDE.md) for hardware, toolchain, and the kid-mode rules.
 
 _Screenshots use demo values (her spy name, no network details)._
+
+## Licence
+- **Code:** MIT ([LICENSE](LICENSE))
+- **Course, ideas, pick-a-number designs and screenshots:** CC BY 4.0 ([course/LICENSE.md](course/LICENSE.md)).
+  Please credit **Megaspy**.
+
+Harry Potter names are used here for a family's private fun and learning; this project has no connection with the
+Harry Potter books, films or their owners.
