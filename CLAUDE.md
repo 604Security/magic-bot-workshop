@@ -5,7 +5,9 @@ she sees it come alive on the robot. The robot is a Seeed **XIAO ESP32S3 Sense**
 OLED, IMU), copied (with git history) from the `ai-petbot` repo on 2026-10-10. She chose the name (option 9).
 
 She loves **unicorns, animals, spy stuff, a bit of hacking, and Harry Potter**.
-She goes by **Megaspy** (her spy name, from the SIA spy game). The project is credited to her: use "Megaspy", never her real name.
+She goes by **Megaspy** (her spy name, from the SIA spy game). The project is credited to her: use "Megaspy", never her real name, in anything committed.
+The app greets her by her real name from `firmware/petbot_test/config.h` (`KID_NAME`, gitignored). Committed fallback and
+`config.h.example` say "Megaspy". Never write the real name into a tracked file.
 
 ## Kid-mode rules (read every session)
 
@@ -158,5 +160,6 @@ She goes by **Megaspy** (her spy name, from the SIA spy game). The project is cr
   `GRYFFINDOR_CHANCE` 25 = all houses even (55 was "too much"); shake via IMU `shaken()` sorts/resets, `SHAKE_G`). Each has a web panel + `/api/owl`, `/api/snitch`, `/api/hat` and an OLED view.
 - [x] 2026-10-11: Web reskin **Potions Dungeon** (`pickers/05-wizard-makeover.html`, pick 7; one THEME block at the end of the CSS).
   Potion Mixer ⭐ (`/api/potion`, 10x10 `ICONS`), Wand Wave ⭐ (`/api/wand`, IMU swish `WAVE_G`).
+- [x] 2026-10-11: Main page menu: ✨ Magic Stuff (#magic) and 🔧 Tests (#tests); name via `/api/info` `kid` → `.kid` spans.
 - **Plan: final game menu.** When the experiments are done, take every ⭐ keeper in `IDEAS.md` and build a polished game
   menu on the web page. Keep the keeper code intact until then (don't refactor it away).
