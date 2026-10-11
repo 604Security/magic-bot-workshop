@@ -8,3 +8,11 @@ watches them come alive on a Seeed XIAO ESP32S3 Sense (camera, mic, tiny OLED sc
 - 🤖 `make petbot-test`: flash the robot, then open http://sparkle.local
 
 Started from `ai-petbot`. See [CLAUDE.md](CLAUDE.md) for hardware, toolchain, and the kid-mode rules.
+
+## ▶️ Start a session
+
+```bash
+cd ~/workstation/github/604Security/magic-bot-workshop
+claude
+```
+Then type **`/sparkle`**. Claude checks the robot, opens its web page, and asks her for the next idea.
