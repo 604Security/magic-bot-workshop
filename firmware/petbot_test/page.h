@@ -206,6 +206,7 @@ button,.bigbtn{color:var(--tile-ink)}
     <a class="tile t-yellow" href="#snitch"><span class="emo">🟡</span><b>Snitch</b><small>Catch the golden snitch!</small></a>
     <a class="tile t-purple" href="#hat"><span class="emo">🎩</span><b>Sorting Hat</b><small>Which house are you?</small></a>
     <a class="tile t-green" href="#potion"><span class="emo">🧪</span><b>Potions</b><small>Mix a silly potion!</small></a>
+    <a class="tile t-blue" href="#wand"><span class="emo">🪄</span><b>Wand Wave</b><small>Wave me and cast a spell!</small></a>
     <a class="tile t-orange" href="#dance"><span class="emo">💃</span><b>Dance</b><small>Clap and my unicorn dances!</small></a>
   </nav>
   <p class="status" id="status">Waking Sparkle up…</p>
@@ -339,6 +340,17 @@ button,.bigbtn{color:var(--tile-ink)}
   <div id="recipes"></div>
 </section>
 
+<!-- ============ WAND WAVE ============ -->
+<section id="wand" class="panel" hidden>
+  <a class="back" href="#">← Menu</a>
+  <h2>🪄 Wand Wave</h2>
+  <p class="hint"><b>Hold Sparkle like a wand and give it a big swish!</b> 🫴 It casts a spell. Watch its screen! (Or press Cast.)</p>
+  <div class="hatbig" id="wandbig">🪄</div>
+  <p style="margin-top:10px"><button id="wandcast">✨ Cast!</button></p>
+  <div class="house" id="spell" hidden></div>
+  <div id="spellbook"></div>
+</section>
+
 <!-- ============ MEMORY ============ -->
 <section id="memory" class="panel" hidden>
   <a class="back" href="#">← Menu</a>
@@ -454,7 +466,7 @@ const FACE = {
 };
 
 // ---------- router: each test has its own link, e.g. /#sounds ----------
-const PANELS = ['home', 'lights', 'sounds', 'eyes', 'screen', 'memory', 'wifi', 'dance', 'owl', 'snitch', 'hat', 'potion'];
+const PANELS = ['home', 'lights', 'sounds', 'eyes', 'screen', 'memory', 'wifi', 'dance', 'owl', 'snitch', 'hat', 'potion', 'wand'];
 let timers = [];
 function every(ms, fn) { fn(); timers.push(setInterval(fn, ms)); }
 function stopAll() {
@@ -790,8 +802,29 @@ function showPotion(r) {
 }
 function startPotion() { potRender(); showRecipes(); every(300, () => api('/api/potion').then(showPotion).catch(() => {})); }
 
+// ---------- wand wave ----------
+const SPELLS = [['💡', 'LUMOS!', 'Light up! Look at Sparkle\'s little light!'], ['⭐', 'ACCIO!', 'Here comes a star!'],
+                ['🪶', 'LEVIOSA!', 'The feather floats!'], ['⚡', 'EXPELLIARMUS!', 'Sparks fly!'], ['💥', 'STUPEFY!', 'Flash!']];
+let wandSeen = -1, spellsCast = 0;
+function showWand(r) {
+  if (r.spell < 0 || r.at === wandSeen) return;
+  const first = wandSeen !== -1;
+  wandSeen = r.at;
+  if (!first) return;  // don't replay an old spell when the page opens
+  const [emo, name, say] = SPELLS[r.spell];
+  spellsCast++;
+  $('wandbig').classList.remove('think'); void $('wandbig').offsetWidth; $('wandbig').classList.add('think');
+  setTimeout(() => $('wandbig').classList.remove('think'), 1200);
+  $('spell').hidden = false; $('spell').style.background = 'var(--purple)'; $('spell').style.color = 'var(--tile-ink)';
+  $('spell').innerHTML = `${emo} ${name} ${emo}<small>${say}</small>`;
+  $('spellbook').innerHTML = `<p class="dancecount">✨ Spells cast: ${spellsCast}</p>`;
+  hatSay(name);
+}
+$('wandcast').onclick = () => api('/api/wand?cast=1').catch(() => {});
+function startWand() { wandSeen = -1; every(250, () => api('/api/wand').then(r => { if (wandSeen === -1) wandSeen = r.at || 0; showWand(r); }).catch(() => {})); }
+
 const START = {home: startHome, lights: startLights, sounds: startSounds, eyes: startEyes,
-               screen: startScreen, memory: startMemory, wifi: startWifi, dance: startDance, owl: startOwl, snitch: startSnitch, hat: startHat, potion: startPotion};
+               screen: startScreen, memory: startMemory, wifi: startWifi, dance: startDance, owl: startOwl, snitch: startSnitch, hat: startHat, potion: startPotion, wand: startWand};
 route();
 </script>
 </body>

@@ -66,8 +66,8 @@ volatile bool sdBusy = false;  // SD test owns GPIO21 while true
 volatile int soundLevel = 0;  // RMS of the latest 50 ms of audio
 volatile int soundPeak = 0;   // loudest since the page last asked
 
-enum ScreenView { V_HOME, V_LIGHTS, V_SOUNDS, V_EYES, V_MEMORY, V_WIFI, V_MESSAGE, V_DANCE, V_OWL, V_SNITCH, V_HAT, V_POTION, V_COUNT };
-const char* VIEW_NAMES[V_COUNT] = {"home", "lights", "sounds", "eyes", "memory", "wifi", "message", "dance", "owl", "snitch", "hat", "potion"};
+enum ScreenView { V_HOME, V_LIGHTS, V_SOUNDS, V_EYES, V_MEMORY, V_WIFI, V_MESSAGE, V_DANCE, V_OWL, V_SNITCH, V_HAT, V_POTION, V_WAND, V_COUNT };
+const char* VIEW_NAMES[V_COUNT] = {"home", "lights", "sounds", "eyes", "memory", "wifi", "message", "dance", "owl", "snitch", "hat", "potion", "wand"};
 volatile ScreenView screenView = V_HOME;
 volatile unsigned long danceStart = 0;  // millis() when the dance began, 0 = not dancing
 volatile int danceCount = 0;
@@ -97,6 +97,22 @@ volatile int hatHouse = 0;
 #define IMU_ADDR 0x6A
 #define SHAKE_G  0.7f  // how hard a wiggle counts as a shake (1.0 = the pull of gravity)
 bool imuOk = false;
+float imuG = 1.0f;  // latest pull on Sparkle (1.0 = sitting still)
+
+// Wand Wave (Wizard School pick 5): wave Sparkle like a wand to cast a random spell
+#define WAVE_G   1.0f  // how hard a wave must be to cast (bigger = harder)
+#define SPELL_MS 2500  // how long a spell's magic lasts on the screen
+const char* SPELLS[5] = {"LUMOS!", "ACCIO!", "LEVIOSA!", "EXPELLIARMUS", "STUPEFY!"};
+volatile int wandSpell = -1;  // -1 = no spell yet
+volatile unsigned long wandAt = 0;
+
+void castSpell() {
+  if (wandAt && millis() - wandAt < SPELL_MS) return;  // one spell at a time
+  wandSpell = esp_random() % 5;
+  unsigned long now = millis();
+  wandAt = now ? now : 1;
+  if (wandSpell == 0) ledMode = LED_ON;  // Lumos lights Sparkle's real light!
+}
 
 bool imuInit() {
   Wire.beginTransmission(IMU_ADDR);
@@ -118,6 +134,7 @@ bool shaken() {
   int16_t v[3];
   for (int i = 0; i < 3; i++) v[i] = Wire.read() | (Wire.read() << 8);
   float g = sqrtf((float)v[0] * v[0] + (float)v[1] * v[1] + (float)v[2] * v[2]) * 0.061f / 1000.0f;
+  imuG = g;
   if (fabsf(g - 1.0f) > SHAKE_G) {
     hits = now - lastHit > 400 ? 1 : hits + 1;
     lastHit = now;
@@ -573,6 +590,58 @@ void drawIcon(int i, int x0, int y0) {
       if (ICONS[i][y][x] == '#') u8g2.drawPixel(x0 + x, y0 + y);
 }
 
+void drawWandSpell(unsigned long now) {
+  // the wand, pointing up and right, tip at (26, 16)
+  u8g2.drawLine(3, 39, 25, 17);
+  u8g2.drawLine(4, 39, 26, 17);
+  u8g2.drawBox(2, 35, 5, 5);  // handle
+  u8g2.setFont(u8g2_font_6x10_tr);
+  unsigned long t = now - wandAt;
+  if (wandSpell < 0 || t > SPELL_MS) {  // waiting: the tip twinkles
+    drawSparkle(27, 15, (now / 300) % 2 ? 2 : 1);
+    drawCentered("wave", 18);
+    drawCentered("me!", 30);
+    return;
+  }
+  const char* name = SPELLS[wandSpell];
+  u8g2.drawStr((72 - u8g2.getStrWidth(name)) / 2, 9, name);
+  switch (wandSpell) {
+    case 0: {  // LUMOS: a big glowing light
+      int r = 4 + (t / 120) % 3;
+      u8g2.drawDisc(27, 16, r);
+      for (int a = 0; a < 8; a++) {
+        float ang = a * 0.785f;
+        u8g2.drawLine(27 + cosf(ang) * (r + 3), 16 + sinf(ang) * (r + 3), 27 + cosf(ang) * (r + 7), 16 + sinf(ang) * (r + 7));
+      }
+      break;
+    }
+    case 1: {  // ACCIO: a star zooms to the wand
+      float p = min(1.0f, t / 1500.0f);
+      drawIcon(7, 60 - (int)(p * 38), 26 - (int)(p * 15));
+      if (p >= 1.0f) drawSparkle(27, 15, 3);
+      break;
+    }
+    case 2:  // LEVIOSA: a feather floats up and down
+      drawIcon(6, 46, 20 + (int)(sinf(t / 300.0f) * 8));
+      drawSparkle(27, 15, 1);
+      break;
+    case 3:  // EXPELLIARMUS: a beam of sparks
+      for (int i = 0; i < 6; i++) {
+        float p = fmodf(t / 600.0f + i / 6.0f, 1.0f);
+        drawSparkle(28 + (int)(p * 44), 15 + (int)(p * 14), p < 0.5f ? 2 : 1);
+      }
+      break;
+    case 4:  // STUPEFY: the whole screen flashes
+      drawSparkle(27, 15, 3);
+      if (t < 1200 && (t / 150) % 2) {
+        u8g2.setDrawColor(2);
+        u8g2.drawBox(0, 0, 72, 40);
+        u8g2.setDrawColor(1);
+      }
+      break;
+  }
+}
+
 void drawCauldron(int wobble, int bubbleSpeed, unsigned long now) {
   u8g2.drawBox(6 + wobble, 22, 28, 2);  // rim
   for (int y = 24; y < 38; y++) {
@@ -635,6 +704,11 @@ void updateScreen() {
   u8g2.clearBuffer();
   if (dancing()) {
     drawHeartTwirl(now - danceStart);
+    u8g2.sendBuffer();
+    return;
+  }
+  if (screenView == V_WAND) {
+    drawWandSpell(now);
     u8g2.sendBuffer();
     return;
   }
@@ -900,6 +974,13 @@ esp_err_t potionHandler(httpd_req_t* req) {
   return sendJson(req, String("{\"state\":") + potionState + "}");
 }
 
+// /api/wand?cast=1 casts a spell; returns the latest spell (or -1) and when it was cast
+esp_err_t wandHandler(httpd_req_t* req) {
+  char v[4];
+  if (queryParam(req, "cast", v, sizeof(v))) castSpell();
+  return sendJson(req, String("{\"spell\":") + wandSpell + ",\"at\":" + wandAt + "}");
+}
+
 esp_err_t captureHandler(httpd_req_t* req) {
   camera_fb_t* fb = cameraOk ? esp_camera_fb_get() : nullptr;
   if (!fb) {
@@ -952,6 +1033,7 @@ void startWeb() {
       {"/api/snitch", HTTP_GET, snitchHandler, nullptr},
       {"/api/hat", HTTP_GET, hatHandler, nullptr},
       {"/api/potion", HTTP_GET, potionHandler, nullptr},
+      {"/api/wand", HTTP_GET, wandHandler, nullptr},
       {"/capture", HTTP_GET, captureHandler, nullptr},
     };
     for (auto& u : uris) httpd_register_uri_handler(web, &u);
@@ -1035,6 +1117,9 @@ void loop() {
   }
   // Shake on the Sorting Hat: sorts when the hat is waiting, and goes back to the hat when a house is showing
   bool shake = shaken();
+  // Wand Wave: one big swish casts a spell; Lumos turns the light off again when its magic ends
+  if (screenView == V_WAND && fabsf(imuG - 1.0f) > WAVE_G) castSpell();
+  if (wandSpell == 0 && ledMode == LED_ON && millis() - wandAt > SPELL_MS + 500) ledMode = LED_OFF;
   if (shake && screenView == V_HAT) {
     if (!hatStart) startSort();
     else if (millis() - hatStart > HAT_THINK_MS) hatStart = 0;
