@@ -93,6 +93,43 @@ const char* ANIMALS[4] = {"brave lion", "clever eagle", "kind badger", "sly snak
 volatile unsigned long hatStart = 0;  // 0 = waiting to sort someone
 volatile int hatHouse = 0;
 
+// Shake detection with the IMU on the screen board (LSM6DS3TR-C), read directly over I2C
+#define IMU_ADDR 0x6A
+#define SHAKE_G  0.7f  // how hard a wiggle counts as a shake (1.0 = the pull of gravity)
+bool imuOk = false;
+
+bool imuInit() {
+  Wire.beginTransmission(IMU_ADDR);
+  Wire.write(0x10);  // CTRL1_XL: accelerometer on, 104 Hz, +-2 g
+  Wire.write(0x40);
+  return Wire.endTransmission() == 0;
+}
+
+// true once when Sparkle is shaken: 4 big wiggles close together, then rests for 1.5 s
+bool shaken() {
+  static unsigned long lastRead = 0, lastHit = 0, lastShake = 0;
+  static int hits = 0;
+  unsigned long now = millis();
+  if (!imuOk || now - lastRead < 20) return false;
+  lastRead = now;
+  Wire.beginTransmission(IMU_ADDR);
+  Wire.write(0x28);  // OUTX_L_XL
+  if (Wire.endTransmission(false) != 0 || Wire.requestFrom(IMU_ADDR, 6) != 6) return false;
+  int16_t v[3];
+  for (int i = 0; i < 3; i++) v[i] = Wire.read() | (Wire.read() << 8);
+  float g = sqrtf((float)v[0] * v[0] + (float)v[1] * v[1] + (float)v[2] * v[2]) * 0.061f / 1000.0f;
+  if (fabsf(g - 1.0f) > SHAKE_G) {
+    hits = now - lastHit > 400 ? 1 : hits + 1;
+    lastHit = now;
+  }
+  if (hits >= 4 && now - lastShake > 1500) {
+    hits = 0;
+    lastShake = now;
+    return true;
+  }
+  return false;
+}
+
 void startSort() {
   if (hatStart && millis() - hatStart < HAT_THINK_MS + 1500) return;  // still busy
   int roll = esp_random() % 100;
@@ -481,7 +518,7 @@ void drawSortingHat(unsigned long now) {
   u8g2.setFont(u8g2_font_6x10_tr);
   if (!hatStart) {  // waiting
     drawHat(0, false);
-    drawCentered("clap", 16);
+    drawCentered("shake", 16);
     drawCentered("me!", 28);
     return;
   }
@@ -847,6 +884,7 @@ void setup() {
   if (screenOk) {
     u8g2.begin();
     u8g2.setBusClock(400000);
+    imuOk = imuInit();
     updateScreen();
   }
 
@@ -875,6 +913,11 @@ void loop() {
   if (snitchClap) {
     snitchClap = false;
     snitchTry();
+  }
+  // Shake on the Sorting Hat: sorts when the hat is waiting, and goes back to the hat when a house is showing
+  if (shaken() && screenView == V_HAT) {
+    if (!hatStart) startSort();
+    else if (millis() - hatStart > HAT_THINK_MS) hatStart = 0;
   }
   updateLed();
   updateScreen();

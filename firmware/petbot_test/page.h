@@ -289,7 +289,7 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
 <section id="hat" class="panel" hidden>
   <a class="back" href="#">← Menu</a>
   <h2>🎩 The Sorting Hat</h2>
-  <p class="hint">Clap your hands 👏 (or press the button) and the Sorting Hat on Sparkle's screen will choose your house!</p>
+  <p class="hint"><b>Shake Sparkle</b> 🫨 (or clap 👏, or press the button) and the Sorting Hat will choose your house! Shake again to go back to the hat for the next person.</p>
   <div class="hatbig" id="hatbig">🎩</div>
   <p style="margin-top:10px"><button id="hatgo">🎩 Sort me!</button></p>
   <div class="house" id="house" hidden></div>
@@ -683,6 +683,7 @@ let hatShown = -1;
 function hatSay(text) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.pitch = 0.8; u.rate = 0.9; speechSynthesis.speak(u); } catch (e) {} }
 function showHat(r) {
   $('hatbig').classList.toggle('think', r.state === 'thinking');
+  if (r.state === 'waiting') { $('house').hidden = true; hatShown = -1; }
   if (r.state === 'thinking') { $('house').hidden = true; if (hatShown !== -2) hatSay('Hmmm… tricky… very tricky…'); hatShown = -2; }
   if (r.state === 'done' && hatShown !== r.start) {
     const h = HOUSES[r.house], first = hatShown === -2;
