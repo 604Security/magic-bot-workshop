@@ -47,6 +47,8 @@ The app greets her by her real name from `firmware/petbot_test/config.h` (`KID_N
 - `pickers/`: every pick-a-number page she has used.
 - `LEARNING.md`: her logic roadmap (IF/THEN → ELSE → try again → friends & feelings → AND/OR/NOT → find the bug).
   The game comes first; weave one level into whatever she's building. Start easy and slow.
+- `course/`: **Vibe Coding for Kids** course material built from these sessions. `README.md` = lab outline,
+  `prompts-costar.md` = real prompts in CO-STAR form. **Keep it current:** each new feature becomes a lab row and a CO-STAR prompt.
 - `ROADMAP.md`: the grown-up's TinyML plan from ai-petbot (wake word, pet vision), handy for "make it hear me" or
   "make it see the cat" ideas.
 
