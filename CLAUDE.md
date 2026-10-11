@@ -181,5 +181,9 @@ The app greets her by her real name from `firmware/petbot_test/config.h` (`KID_N
 - [x] 2026-10-11: CYD **Spy Camera** ⭐ (`firmware/cyd/cyd_spycam`): CYD finds sparkle.local via mDNS, pulls `/capture` JPEGs, shows
   them at 1/2 scale (TJpg_Decoder). Grown-up test ("amazing!"); Megaspy hasn't seen it yet:
   reveal it to her and let her decide its use. Candidate for the SIA spy game (SIA-ESP32_spy repo).
+- [x] 2026-10-11: CYD **Sparkle's Remote** (`firmware/cyd/cyd_menu`): touch menu of 8 games; tapping one sets Sparkle's view
+  (`/api/screen?view=`) and shows a colour helper screen (house reveal, cam, score, hearts, letters, spells, ingredients,
+  disco). No tap-to-sort: the action must happen on Sparkle (grown-up's rule). `cyd_sorting_hat` and `cyd_spycam` are the
+  standalone versions.
 - **Plan: final game menu.** When the experiments are done, take every ⭐ keeper in `IDEAS.md` and build a polished game
   menu on the web page. Keep the keeper code intact until then (don't refactor it away).

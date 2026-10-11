@@ -13,7 +13,7 @@ Every idea goes here, in her words. ✅ = built, 🏅 = badge earned, ⭐ = **ke
 | 7 | 🪄 Make the web page Harry Potter themed | **7: Potions Dungeon** 🧪💚 | ✅ 🏅 *Makeover Wizard* |
 | 8 | 🧪 Potion Mixer (Wizard School) | **6: Potion Mixer**: pick 3 ingredients, shake to stir, then: ingredient pictures drop into the cauldron | ✅ 🏅 *Potion Master* ⭐ keeper |
 | 9 | 🪄 Wand Wave (Wizard School) | **5: Wand Wave**: swish Sparkle to cast Lumos, Accio, Leviosa, Expelliarmus, Stupefy | ✅ 🏅 *Spell Caster* ⭐ keeper |
-| 10 | 💛 The yellow touchscreen (CYD) talks to Sparkle | **2: Colour Sorting Hat** 🎩🦁: shake Sparkle, the yellow screen shows your house in colour + ta-da + coloured light | 🧪 testing |
+| 10 | 💛 The yellow touchscreen (CYD) talks to Sparkle | **2: Colour Sorting Hat** 🎩🦁 (she got Gryffindor!), then grown-up idea: no tap-to-sort (Sparkle must be shaken), and the yellow screen becomes **Sparkle's Remote**: a menu that switches Sparkle's games | ✅ 🏅 *Remote Wizard* |
 | 12 | 📺 Surprise! Spy Camera: Sparkle's eye on the yellow screen (grown-up built it as a surprise) | she loved it! | ✅ 🏅 *Spy Camera Agent* ⭐ keeper |
 | 11 | 🤔 Learn IF / THEN / ELSE (see `LEARNING.md`) | parked: comes after she picks the game (`pickers/07-if-then-else.html` ready for Level 2) | 💤 later |
 
@@ -31,3 +31,4 @@ Every idea goes here, in her words. ✅ = built, 🏅 = badge earned, ⭐ = **ke
 ## 🤫 Grown-up tests (surprises she hasn't seen yet)
 - (none right now)
 - 🏅 **Spy Camera Agent**: saw through Sparkle's eye on the yellow screen and loved it (2026-10-11)
+- 🏅 **Remote Wizard**: the yellow screen became Sparkle's remote control, with the Colour Sorting Hat inside (2026-10-11)
