@@ -135,6 +135,20 @@ bool shaken() {
 char potionMsg[25] = "";       // what the potion does (the web page picks it from the ingredients)
 volatile int potionState = 0;  // 0 = empty, 1 = ingredients in, 2 = brewing, 3 = done
 unsigned long brewStart = 0;
+int potionIngr[3], potionCount = 0;  // the ingredients in the cauldron (same order as the web page)
+unsigned long lastAddAt = 0;         // when the newest one was dropped in
+
+// 10x10 pictures of the ingredients for the tiny screen (# = a lit dot)
+const char* const ICONS[8][10] = {
+  {".........#", "........##", ".......##.", "......###.", ".....###..", "....####..", "...####...", "..#####...", ".#####....", "######...."},  // unicorn horn
+  {".##....##.", "#..#..#..#", "#.##..##.#", ".########.", "##########", "#........#", "#.######.#", "##......##", ".########.", ".........."},  // frog
+  {"..######..", ".########.", "##......##", "#..####..#", "#.######.#", "#.#....#.#", "#.#.##.#.#", "#.#.##.#.#", "..........", ".........."},  // rainbow
+  {"#..#..#..#", ".#.#..#.#.", "..#.##.#..", "##.####.##", "..######..", "##.####.##", "..#.##.#..", ".#......#.", "#........#", ".........."},  // spider
+  {"..####....", ".#....#...", "#..##..#..", "#.#..#.#..", "#..##..#..", ".#....#...", "..####....", "....#.....", "....#.....", "....#....."},  // candy
+  {"........#.", ".......#..", "......###.", ".....####.", "....####..", "...####...", "..####....", ".####.....", "###.......", "#........."},  // dragon pepper
+  {".......##.", "......#.##", ".....#.###", "....#.###.", "...#.###..", "..#.###...", "..####....", ".#........", "#.........", ".........."},  // owl feather
+  {"....##....", "....##....", "...####...", "##########", ".########.", "..######..", "..##..##..", ".##....##.", ".#......#.", ".........."}   // star dust
+};
 
 void startBrew() {
   if (potionState != 1) return;
@@ -553,6 +567,12 @@ void drawSortingHat(unsigned long now) {
   u8g2.drawStr((72 - u8g2.getStrWidth(ANIMALS[hatHouse])) / 2, 33, ANIMALS[hatHouse]);
 }
 
+void drawIcon(int i, int x0, int y0) {
+  for (int y = 0; y < 10; y++)
+    for (int x = 0; x < 10; x++)
+      if (ICONS[i][y][x] == '#') u8g2.drawPixel(x0 + x, y0 + y);
+}
+
 void drawCauldron(int wobble, int bubbleSpeed, unsigned long now) {
   u8g2.drawBox(6 + wobble, 22, 28, 2);  // rim
   for (int y = 24; y < 38; y++) {
@@ -584,8 +604,26 @@ void drawPotion(unsigned long now) {
     return;
   }
   drawCauldron(0, 1800, now);
-  drawCentered(potionState == 1 ? "shake" : "add", 16);
-  drawCentered(potionState == 1 ? "to stir" : "stuff!", 28);
+  unsigned long since = now - lastAddAt;
+  bool dropping = potionCount && since < 700;
+  for (int k = 0; k < potionCount; k++) {
+    if (dropping && k == potionCount - 1) {  // the newest one falls into the cauldron... splash!
+      if (since < 500) drawIcon(potionIngr[k], 15, -10 + (int)(since * 30 / 500));
+      else { drawSparkle(11, 18, 2); drawSparkle(29, 18, 2); }
+    } else {
+      drawIcon(potionIngr[k], 38 + k * 11, 1);
+    }
+  }
+  u8g2.setFont(u8g2_font_5x8_tr);
+  if (potionState == 1) {
+    drawCentered("shake", 26);
+    drawCentered("to stir!", 36);
+  } else {
+    char more[8];
+    snprintf(more, sizeof(more), "add %d", 3 - potionCount);
+    drawCentered(more, 26);
+    drawCentered("more!", 36);
+  }
 }
 
 void updateScreen() {
@@ -837,16 +875,28 @@ esp_err_t hatHandler(httpd_req_t* req) {
 // /api/potion?msg=... puts the ingredients in, ?stir=1 brews, ?empty=1 starts again; returns the state
 esp_err_t potionHandler(httpd_req_t* req) {
   char msg[80], v[4];
+  if (queryParam(req, "ing", msg, sizeof(msg))) {  // e.g. ing=0,3,5
+    int old = potionCount;
+    potionCount = 0;
+    for (char* p = msg; *p && potionCount < 3; p++)
+      if (*p >= '0' && *p <= '7') potionIngr[potionCount++] = *p - '0';
+    if (potionCount > old) lastAddAt = millis();
+    potionState = 0;
+    screenView = V_POTION;
+  }
   if (queryParam(req, "msg", msg, sizeof(msg))) {
     int n = 0;
     for (char* p = msg; *p && n < 24; p++)
       if (*p >= 32 && *p < 127) potionMsg[n++] = *p;
     potionMsg[n] = 0;
-    potionState = 1;
+    if (potionCount == 3) potionState = 1;
     screenView = V_POTION;
   }
   if (queryParam(req, "stir", v, sizeof(v))) startBrew();
-  if (queryParam(req, "empty", v, sizeof(v))) potionState = 0;
+  if (queryParam(req, "empty", v, sizeof(v))) {
+    potionState = 0;
+    potionCount = 0;
+  }
   return sendJson(req, String("{\"state\":") + potionState + "}");
 }
 
@@ -992,7 +1042,10 @@ void loop() {
   // Shake on the Potion Mixer: stirs the cauldron, or empties it when the potion is done
   if (shake && screenView == V_POTION) {
     if (potionState == 1) startBrew();
-    else if (potionState == 3) potionState = 0;
+    else if (potionState == 3) {
+      potionState = 0;
+      potionCount = 0;
+    }
   }
   updateLed();
   updateScreen();

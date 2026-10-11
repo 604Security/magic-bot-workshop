@@ -765,7 +765,9 @@ INGREDIENTS.forEach(([emo, name], i) => {
     if (potPicks.includes(i)) potPicks = potPicks.filter(x => x !== i);
     else if (potPicks.length < 3) potPicks.push(i);
     potRender();
-    if (potPicks.length === 3) api('/api/potion?msg=' + encodeURIComponent(potionFor(potPicks)[1])).catch(() => {});
+    let q = '/api/potion?ing=' + potPicks.join(',');
+    if (potPicks.length === 3) q += '&msg=' + encodeURIComponent(potionFor(potPicks)[1]);
+    api(q).catch(() => {});
   };
   $('ingredients').appendChild(b);
 });
