@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>If Then Else</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Cinzel+Decorative:wght@700&family=IM+Fell+English&family=Henny+Penny&family=Dancing+Script:wght@700&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+<style>
+  :root { --bg1:#2b0f4c; --bg2:#5a1a7a; --card:#ffffff; --ink:#3a1650; }
+  * { box-sizing: border-box; }
+  html { background:#2b0f4c; }
+  body { margin:0; min-height:100vh; font-family:'Fredoka',system-ui,sans-serif; color:var(--ink);
+    background: radial-gradient(circle at 20% 10%, #ff7ad9 0, transparent 40%),
+                radial-gradient(circle at 80% 90%, #6ad7ff 0, transparent 40%),
+                linear-gradient(160deg,var(--bg1),var(--bg2)); padding:24px 16px 60px; }
+  h1 { text-align:center; color:#fff; font-size:clamp(28px,5vw,52px); margin:0 0 6px;
+    text-shadow:0 4px 0 #ff4fb8, 0 8px 20px #0006; }
+  .sub { text-align:center; color:#ffe6fb; font-size:clamp(16px,2.4vw,22px); margin:0 0 24px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:18px; max-width:1300px; margin:0 auto; }
+  .tile { position:relative; background:var(--card); border-radius:26px; padding:18px 16px 16px; text-align:center;
+    box-shadow:0 8px 0 var(--edge), 0 14px 30px #0005; cursor:pointer; transition:transform .15s; border:4px solid var(--edge); }
+  .tile:hover { transform:translateY(-4px) rotate(-1deg); }
+  .tile.picked { transform:scale(1.04); box-shadow:0 0 0 6px #fff, 0 0 40px 10px var(--edge); }
+  .num { position:absolute; top:-14px; left:-10px; width:54px; height:54px; border-radius:50%; background:var(--edge);
+    color:#fff; font-size:30px; font-weight:700; display:grid; place-items:center; border:4px solid #fff; box-shadow:0 4px 10px #0004; }
+  .stage { height:150px; background:#05060A !important; display:flex; align-items:center; justify-content:center; white-space:nowrap; font-size:64px; position:relative; overflow:hidden;
+    border-radius:18px; background:var(--soft); margin-bottom:10px; }
+  .name { font-size:24px; font-weight:700; line-height:1.15; margin:4px 0 6px; }
+  .repo { font-family:ui-monospace,monospace; font-size:13px; color:#7a5a8a; background:#f4eefa; border-radius:8px; padding:4px 6px; display:inline-block; }
+  .say { margin-top:10px; border:none; background:var(--edge); color:#fff; font:inherit; font-size:18px; border-radius:999px; padding:6px 16px; cursor:pointer; }
+  .banner { position:fixed; left:50%; bottom:20px; transform:translateX(-50%) translateY(150%); background:#fff; color:var(--ink);
+    font-size:24px; font-weight:700; padding:14px 28px; border-radius:999px; box-shadow:0 10px 30px #0006; transition:transform .3s, opacity .3s; opacity:0; z-index:9; text-align:center; max-width:calc(100% - 32px); }
+  .banner.show { transform:translateX(-50%) translateY(0); opacity:1; }
+  /* animations */
+  @keyframes bob { 50% { transform:translateY(-12px) rotate(4deg);} }
+  @keyframes spin { to { transform:rotate(360deg);} }
+  @keyframes peek { 0%,100%{transform:translateX(-90px)} 40%,60%{transform:translateX(0)} }
+  @keyframes pulse { 50% { transform:scale(1.2);} }
+  @keyframes hop { 0%,100%{transform:translateY(0)} 30%{transform:translateY(-26px)} 50%{transform:translateY(0)} }
+  @keyframes twinkle { 50% { opacity:.2; transform:scale(.6);} }
+  @keyframes rain { from { transform:translateY(-70px);} to { transform:translateY(70px);} }
+  @keyframes rainbow { to { filter:hue-rotate(360deg);} }
+  .bob{display:inline-block;animation:bob 1.6s ease-in-out infinite} .spin{animation:spin 3s linear infinite}
+  .peek{animation:peek 3s ease-in-out infinite} .pulse{display:inline-block;animation:pulse 1.2s ease-in-out infinite}
+  .hop{display:inline-block;animation:hop 1.1s ease-in-out infinite} .rainbow{animation:rainbow 3s linear infinite}
+  .spark { position:absolute; font-size:22px; animation:twinkle 1.4s ease-in-out infinite; }
+  .code { position:absolute; font-family:monospace; font-size:16px; color:#3cff7a; animation:rain 1.8s linear infinite; }
+  .stage canvas { width:100%; max-width:216px; image-rendering:pixelated; }
+  .pal { font-size:30px; margin-top:4px; }
+  .clap { margin-top:10px; margin-left:6px; border:3px solid var(--edge); background:#fff; color:var(--edge); font:inherit; font-size:18px; border-radius:999px; padding:4px 14px; cursor:pointer; }
+  .tile.picked .name::after { content:" ✅"; }
+  .what { font-size:16px; color:#6a4a7a; margin:2px 0 4px; min-height:40px; }
+  .mini { position:relative; height:190px; border-radius:16px; overflow:hidden; margin-bottom:10px; padding:10px 10px 0;
+    background:var(--bg); color:var(--ink); font-family:var(--font); text-align:center; }
+  .mini h3 { margin:2px 0 8px; font-size:26px; font-family:var(--title); color:var(--title-c); text-shadow:var(--glow); position:relative; z-index:2; }
+  .mini .mt { display:grid; grid-template-columns:1fr 1fr; gap:6px; position:relative; z-index:2; }
+  .mini .mt span { background:var(--tile); color:var(--tile-ink); border:2px solid var(--edge2); border-radius:var(--r); padding:6px 4px; font-size:14px; box-shadow:var(--tshadow); }
+  .deco { position:absolute; z-index:1; pointer-events:none; font-size:18px; }
+  @keyframes float { 50% { transform:translateY(-8px); } }
+  @keyframes tw { 50% { opacity:.15; } }
+  @keyframes walk { 0% { opacity:0; } 20%,60% { opacity:1; } 100% { opacity:0; } }
+  @keyframes flick { 0%,100% { transform:scale(1) rotate(-2deg); } 50% { transform:scale(1.15) rotate(2deg); } }
+  @keyframes bub { from { transform:translateY(20px); opacity:1; } to { transform:translateY(-160px); opacity:0; } }
+  .stage2 { position:relative; height:190px; border-radius:16px; overflow:hidden; margin-bottom:10px; background:var(--bg); }
+  .stage2 svg { position:absolute; inset:0; width:100%; height:100%; }
+  .tok { position:absolute; font-size:30px; transform:translate(-50%,-50%); transition:none; z-index:3; }
+  .lab { position:absolute; font-weight:700; font-size:13px; padding:2px 7px; border-radius:8px; transform:translate(-50%,-50%); z-index:2; white-space:nowrap; }
+  .ask { position:absolute; font-size:13px; font-weight:700; background:#fff; color:#333; border-radius:10px; padding:2px 8px; transform:translate(-50%,-50%); z-index:4; box-shadow:0 2px 6px #0004; }
+  .goal { position:absolute; font-size:30px; transform:translate(-50%,-50%); z-index:2; transition:transform .2s; }
+  .goal.win { transform:translate(-50%,-50%) scale(1.45); }
+</style>
+</head>
+<body>
+<h1>🤔 IF … THEN … ELSE</h1>
+<p class="sub">Magic rules! Watch them move, then pick a number!</p>
+<div class="grid" id="grid"></div>
+<div class="banner" id="banner"></div>
+<script>
+// Each idea: a token travels from the start to the fork, the rule is checked (did you clap?),
+// then it goes to THEN (yes) or ELSE (no). Positions are % of the stage. vertical = falls downwards.
+const ideas = [
+  { n:"Hogwarts Express", edge:"#ae0001", bg:"linear-gradient(#bfe9ff,#e8f8d0)", rail:"#7a4a1f", tok:"🚂", ask:"🎫 got a ticket?",
+    then:["🏰","THEN: Hogwarts!"], els:["🏠","ELSE: home"], say:"The Hogwarts Express comes to a switch. Got a ticket? Off to Hogwarts! Else, back home." },
+  { n:"Fat Lady's Portrait", edge:"#c2187a", bg:"linear-gradient(#5a1a2e,#2a0a14)", rail:"#ffc93c", tok:"🧙‍♀️", ask:"🗝️ password?",
+    then:["🛋️","THEN: come in!"], els:["👻","ELSE: Peeves!"], say:"You reach the Fat Lady's portrait. Said the password? Come into the common room! Else, Peeves gets you!" },
+  { n:"Potion Pipes", edge:"#2f6b4f", bg:"linear-gradient(#1b2620,#0d1410)", rail:"#3dff6e", tok:"💧", ask:"🥄 stirred?", vertical:true,
+    then:["🧪","THEN: potion!"], els:["🫗","ELSE: spill"], say:"A drop falls down the pipes. If you stirred, it makes a potion. Else it spills!" },
+  { n:"Quidditch", edge:"#c8a000", bg:"linear-gradient(#9fd8ff,#d8f2c8)", rail:"#c8a000", tok:"🧹", ask:"🟡 caught it?", vertical:true,
+    then:["🏆","THEN: 150 points!"], els:["🔄","ELSE: keep flying"], say:"The seeker reaches for the snitch. Caught it? 150 points! Else, keep flying!" },
+  { n:"Gringotts Cart", edge:"#7a4a1f", bg:"linear-gradient(#3a2a1a,#140c06)", rail:"#c9a227", tok:"🛒", ask:"🔑 got the key?",
+    then:["💰","THEN: treasure!"], els:["🐉","ELSE: dragon!"], say:"The Gringotts cart zooms to the vault. Got the key? Treasure! Else, a dragon!" },
+  { n:"Owl Post", edge:"#5a6a8a", bg:"linear-gradient(#7ec8ff,#dff3ff)", rail:"#fff", tok:"🦉", ask:"🏠 anyone home?",
+    then:["📬","THEN: deliver!"], els:["🔁","ELSE: try later"], say:"The owl flies to the house. Anyone home? Deliver the letter! Else, try again later." },
+];
+const grid = document.getElementById('grid'), banner = document.getElementById('banner'), tiles = [];
+function say(text){ try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.pitch = 1.3; u.rate = .95; speechSynthesis.speak(u); } catch(e){} }
+ideas.forEach((d, i) => {
+  // start, fork, then-goal, else-goal (in % of the stage)
+  const P = d.vertical ? { s:[50,8], f:[50,42], t:[22,82], e:[78,82] } : { s:[8,50], f:[38,50], t:[84,18], e:[84,82] };
+  const L = (a, b) => `<line x1="${a[0]}%" y1="${a[1]}%" x2="${b[0]}%" y2="${b[1]}%" stroke="${d.rail}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${d.rail === '#ff2a6a' ? '4 6' : '0'}"/>`;
+  const t = document.createElement('div'); t.className = 'tile'; t.style.setProperty('--edge', d.edge);
+  t.innerHTML = `<div class="num">${i+1}</div>
+    <div class="stage2" style="--bg:${d.bg}"><svg>${L(P.s, P.f)}${L(P.f, P.t)}${L(P.f, P.e)}</svg>
+      <div class="lab" style="left:${P.f[0]}%;top:${P.f[1] + (d.vertical ? -14 : 18)}%;background:#ffe27a;color:#333">IF</div>
+      <div class="goal g-then" style="left:${P.t[0]}%;top:${P.t[1]}%">${d.then[0]}</div>
+      <div class="goal g-else" style="left:${P.e[0]}%;top:${P.e[1]}%">${d.els[0]}</div>
+      <div class="lab" style="left:${d.vertical ? P.t[0] + 4 : 58}%;top:${d.vertical ? P.t[1] + 13 : 22}%;background:#7dff9d;color:#123">${d.then[1]}</div>
+      <div class="lab" style="left:${d.vertical ? P.e[0] - 4 : 58}%;top:${d.vertical ? P.e[1] + 13 : 78}%;background:#ffb0c8;color:#401">${d.els[1]}</div>
+      <div class="ask" style="left:${P.f[0]}%;top:${P.f[1]}%;display:none"></div>
+      <div class="tok">${d.tok}</div></div>
+    <div class="name">${d.n}</div><button class="say">🔊 Say it</button>`;
+  tiles.push({ el:t, d, P, tok:t.querySelector('.tok'), ask:t.querySelector('.ask'), gt:t.querySelector('.g-then'), ge:t.querySelector('.g-else') });
+  t.querySelector('.say').addEventListener('click', e => { e.stopPropagation(); say(`Number ${i+1}. ${d.n}. ${d.say}`); });
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tile').forEach(el => el.classList.remove('picked')); t.classList.add('picked');
+    banner.textContent = `🤔 Number ${i+1}: ${d.n}!`; banner.classList.add('show'); say(`Yay! Number ${i+1}. ${d.n}!`);
+  });
+  grid.appendChild(t);
+});
+const lerp = (a, b, p) => [a[0] + (b[0] - a[0]) * p, a[1] + (b[1] - a[1]) * p];
+const CYCLE = 4200;  // ms: travel to fork 1.2s, think 1s, travel to goal 1.2s, celebrate 0.8s
+(function loop(now) {
+  tiles.forEach((tl, i) => {
+    const t = (now + i * 500) % (CYCLE * 2), yes = t < CYCLE, c = t % CYCLE, P = tl.P;
+    let pos;
+    if (c < 1200) pos = lerp(P.s, P.f, c / 1200);
+    else if (c < 2200) pos = P.f;
+    else if (c < 3400) pos = lerp(P.f, yes ? P.t : P.e, (c - 2200) / 1200);
+    else pos = yes ? P.t : P.e;
+    tl.tok.style.left = pos[0] + '%'; tl.tok.style.top = pos[1] + '%';
+    tl.tok.style.opacity = c >= 3400 ? 0 : 1;
+    tl.ask.style.display = c >= 1200 && c < 2200 ? 'block' : 'none';
+    tl.ask.textContent = c < 1700 ? tl.d.ask : (yes ? '✅ YES!' : '❌ NO');
+    tl.gt.classList.toggle('win', c >= 3400 && yes); tl.ge.classList.toggle('win', c >= 3400 && !yes);
+  });
+  requestAnimationFrame(loop);
+})(0);
+</script>
+</body>
+</html>

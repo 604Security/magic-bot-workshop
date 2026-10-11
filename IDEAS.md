@@ -14,6 +14,7 @@ Every idea goes here, in her words. ✅ = built, 🏅 = badge earned, ⭐ = **ke
 | 8 | 🧪 Potion Mixer (Wizard School) | **6: Potion Mixer**: pick 3 ingredients, shake to stir, then: ingredient pictures drop into the cauldron | ✅ 🏅 *Potion Master* ⭐ keeper |
 | 9 | 🪄 Wand Wave (Wizard School) | **5: Wand Wave**: swish Sparkle to cast Lumos, Accio, Leviosa, Expelliarmus, Stupefy | ✅ 🏅 *Spell Caster* ⭐ keeper |
 | 10 | 💛 The yellow touchscreen (CYD) talks to Sparkle | (she hasn't picked yet: `pickers/06-sparkle-friend.html`) | 🎨 choosing |
+| 11 | 🤔 Learn IF / THEN / ELSE: how should Sparkle show its rules? | (picking… `pickers/07-if-then-else.html`) | 🎨 choosing |
 
 ## 🏅 Badges
 - 🏅 **Namer**: named the Magic Bot Workshop (2026-10-10)
