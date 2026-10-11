@@ -14,6 +14,7 @@ Every idea goes here, in her words. ✅ = built, 🏅 = badge earned, ⭐ = **ke
 | 8 | 🧪 Potion Mixer (Wizard School) | **6: Potion Mixer**: pick 3 ingredients, shake to stir, then: ingredient pictures drop into the cauldron | ✅ 🏅 *Potion Master* ⭐ keeper |
 | 9 | 🪄 Wand Wave (Wizard School) | **5: Wand Wave**: swish Sparkle to cast Lumos, Accio, Leviosa, Expelliarmus, Stupefy | ✅ 🏅 *Spell Caster* ⭐ keeper |
 | 10 | 💛 The yellow touchscreen (CYD) talks to Sparkle | (she hasn't picked yet: `pickers/06-sparkle-friend.html`) | 🎨 choosing |
+| 12 | 📺 Surprise! Spy Camera: Sparkle's eye on the yellow screen (grown-up built it as a surprise) | she loved it! | ✅ 🏅 *Spy Camera Agent* ⭐ keeper |
 | 11 | 🤔 Learn IF / THEN / ELSE (see `LEARNING.md`) | parked: comes after she picks the game (`pickers/07-if-then-else.html` ready for Level 2) | 💤 later |
 
 ## 🏅 Badges
@@ -28,4 +29,5 @@ Every idea goes here, in her words. ✅ = built, 🏅 = badge earned, ⭐ = **ke
 - 🏅 **Spell Caster**: swished Sparkle like a wand and cast spells (2026-10-11)
 
 ## 🤫 Grown-up tests (surprises she hasn't seen yet)
-- 📺 **Spy Camera** (`firmware/cyd/cyd_spycam`): Sparkle's camera on the yellow screen. Show her, then let her decide what it's for.
+- (none right now)
+- 🏅 **Spy Camera Agent**: saw through Sparkle's eye on the yellow screen and loved it (2026-10-11)
