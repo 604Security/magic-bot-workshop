@@ -83,6 +83,9 @@ int snitchX = 36, snitchY = 20;
 int snitchScore = 0, snitchBest = 0;
 unsigned long snitchResultAt = 0;     // when the last catch/miss happened
 bool snitchGot = false;
+unsigned long snitchLastInBox = 0;    // last time the snitch was in the box
+#define CATCH_GRACE_MS 2000           // Megaspy's rule: in the box 2 seconds ago still counts!
+#define BOX 8                         // how far from the middle still counts as "in the box"
 volatile unsigned long owlStart = 0;  // 0 = no letter yet
 
 bool dancing() { return danceStart && millis() - danceStart < DANCE_MS; }
@@ -396,12 +399,13 @@ void drawOwlPost(unsigned long now) {
   }
 }
 
-bool snitchInBox() { return abs(snitchX - 36) <= 6 && abs(snitchY - 20) <= 6; }
+bool snitchInBox() { return abs(snitchX - 36) <= BOX && abs(snitchY - 20) <= BOX; }
 
 void snitchTry() {
-  snitchGot = snitchInBox();
   snitchResultAt = millis();
+  snitchGot = snitchInBox() || (snitchLastInBox && snitchResultAt - snitchLastInBox <= CATCH_GRACE_MS);
   if (snitchGot) {
+    snitchLastInBox = 0;  // one catch per visit to the box
     snitchScore++;
     if (snitchScore > snitchBest) snitchBest = snitchScore;
   }
@@ -412,11 +416,13 @@ void drawSnitch(unsigned long now) {
   unsigned long since = now - snitchResultAt;
   if (!(snitchGot && snitchResultAt && since < 1200)) {  // it stops while you celebrate a catch
     float speed = 1.0f + min(snitchScore, 12) * 0.15f;  // faster after every catch!
+    if (snitchInBox()) speed *= 0.3f;                    // ...but it hovers in the box
     snitchPhase += (now - last) * speed;
   }
   last = now;
   snitchX = 36 + (int)lroundf(sinf(snitchPhase / 430.0f) * 30);
   snitchY = 20 + (int)lroundf(sinf(snitchPhase / 270.0f) * 15);
+  if (snitchInBox()) snitchLastInBox = now;
 
   u8g2.setFont(u8g2_font_5x8_tr);
   u8g2.setCursor(0, 7);
@@ -430,7 +436,7 @@ void drawSnitch(unsigned long now) {
     u8g2.drawStr(15, 38, "GOT IT!");
     return;
   }
-  u8g2.drawFrame(28, 12, 17, 17);
+  u8g2.drawFrame(36 - BOX - 1, 20 - BOX - 1, 2 * BOX + 3, 2 * BOX + 3);
   bool flap = (now / 80) % 2;
   u8g2.drawDisc(snitchX, snitchY, 2);
   u8g2.drawLine(snitchX - 3, snitchY, snitchX - 8, snitchY + (flap ? -3 : 2));
