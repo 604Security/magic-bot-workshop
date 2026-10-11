@@ -157,6 +157,6 @@ She goes by **Megaspy** (her spy name, from the SIA spy game). The project is cr
 - [x] 2026-10-11: Wizard School (`pickers/04-wizard-school.html`): Owl Post (pick 3) ⭐, Catch the Snitch (pick 7) ⭐, Sorting Hat ⭐ (pick 2,
   `GRYFFINDOR_CHANCE` 25 = all houses even (55 was "too much"); shake via IMU `shaken()` sorts/resets, `SHAKE_G`). Each has a web panel + `/api/owl`, `/api/snitch`, `/api/hat` and an OLED view.
 - [x] 2026-10-11: Web reskin **Potions Dungeon** (`pickers/05-wizard-makeover.html`, pick 7; one THEME block at the end of the CSS).
-  Potion Mixer ⭐ (`/api/potion`, 10x10 `ICONS`), Wand Wave (`/api/wand`, IMU swish `WAVE_G`).
+  Potion Mixer ⭐ (`/api/potion`, 10x10 `ICONS`), Wand Wave ⭐ (`/api/wand`, IMU swish `WAVE_G`).
 - **Plan: final game menu.** When the experiments are done, take every ⭐ keeper in `IDEAS.md` and build a polished game
   menu on the web page. Keep the keeper code intact until then (don't refactor it away).

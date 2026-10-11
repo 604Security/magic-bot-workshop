@@ -12,7 +12,7 @@ Every idea goes here, in her words. ✅ = built, 🏅 = badge earned, ⭐ = **ke
 | 6 | 🎩 Sorting Hat, and make Gryffindor come up most (her real house!) | **2: Sorting Hat** 🦁, then: shake to sort, shake again to reset, all houses even | ✅ 🏅 *Sorted!* ⭐ keeper |
 | 7 | 🪄 Make the web page Harry Potter themed | **7: Potions Dungeon** 🧪💚 | ✅ 🏅 *Makeover Wizard* |
 | 8 | 🧪 Potion Mixer (Wizard School) | **6: Potion Mixer**: pick 3 ingredients, shake to stir, then: ingredient pictures drop into the cauldron | ✅ 🏅 *Potion Master* ⭐ keeper |
-| 9 | 🪄 Wand Wave (Wizard School) | **5: Wand Wave**: swish Sparkle to cast Lumos, Accio, Leviosa, Expelliarmus, Stupefy | 🧪 testing |
+| 9 | 🪄 Wand Wave (Wizard School) | **5: Wand Wave**: swish Sparkle to cast Lumos, Accio, Leviosa, Expelliarmus, Stupefy | ✅ 🏅 *Spell Caster* ⭐ keeper |
 
 ## 🏅 Badges
 - 🏅 **Namer**: named the Magic Bot Workshop (2026-10-10)
@@ -23,3 +23,4 @@ Every idea goes here, in her words. ✅ = built, 🏅 = badge earned, ⭐ = **ke
 - 🏅 **Sorted!**: built the Sorting Hat; shake Sparkle to be sorted (2026-10-11)
 - 🏅 **Makeover Wizard**: gave Sparkle's web page the spooky green Potions Dungeon look (2026-10-11)
 - 🏅 **Potion Master**: built the Potion Mixer with 12 potions to discover (2026-10-11)
+- 🏅 **Spell Caster**: swished Sparkle like a wand and cast spells (2026-10-11)
