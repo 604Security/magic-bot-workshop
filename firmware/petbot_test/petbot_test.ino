@@ -86,7 +86,7 @@ bool snitchGot = false;
 unsigned long snitchLastInBox = 0;
 
 // Sorting Hat (Wizard School pick 2): clap and the hat thinks, then picks a house
-#define GRYFFINDOR_CHANCE 55  // out of 100: Megaspy's house comes up the most!
+#define GRYFFINDOR_CHANCE 25  // out of 100: 25 = every house has the same chance (Megaspy said 55 was too much!)
 #define HAT_THINK_MS 3500     // how long the hat goes "hmm..."
 const char* HOUSES[4] = {"GRYFFINDOR!", "RAVENCLAW!", "HUFFLEPUFF!", "SLYTHERIN!"};
 const char* ANIMALS[4] = {"brave lion", "clever eagle", "kind badger", "sly snake"};
