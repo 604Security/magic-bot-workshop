@@ -26,6 +26,11 @@
 #define ROBOT_NAME "Sparkle"
 #define ROBOT_HOST "sparkle"  // web address: http://sparkle.local
 
+// Unicorn Dance Party (she picked dance 8, Heart Twirl, on pickers/03-dance-party.html)
+#define CLAP_LEVEL 1200  // how loud a clap must be (quiet room ~20, talking ~100-500)
+#define DANCE_MS   8000  // how long the unicorn dances after a clap (she asked for longer!)
+#define HEARTS     10    // how many hearts float up (she asked for way more!)
+
 // ---------------------------------------------------------------- pins
 const int LED_PIN = 21;  // orange user LED, active LOW. Shared with the SD card CS!
 const int SD_CS = 21;
@@ -61,9 +66,19 @@ volatile bool sdBusy = false;  // SD test owns GPIO21 while true
 volatile int soundLevel = 0;  // RMS of the latest 50 ms of audio
 volatile int soundPeak = 0;   // loudest since the page last asked
 
-enum ScreenView { V_HOME, V_LIGHTS, V_SOUNDS, V_EYES, V_MEMORY, V_WIFI, V_MESSAGE, V_COUNT };
-const char* VIEW_NAMES[V_COUNT] = {"home", "lights", "sounds", "eyes", "memory", "wifi", "message"};
+enum ScreenView { V_HOME, V_LIGHTS, V_SOUNDS, V_EYES, V_MEMORY, V_WIFI, V_MESSAGE, V_DANCE, V_COUNT };
+const char* VIEW_NAMES[V_COUNT] = {"home", "lights", "sounds", "eyes", "memory", "wifi", "message", "dance"};
 volatile ScreenView screenView = V_HOME;
+volatile unsigned long danceStart = 0;  // millis() when the dance began, 0 = not dancing
+volatile int danceCount = 0;
+
+bool dancing() { return danceStart && millis() - danceStart < DANCE_MS; }
+void startDance() {
+  if (dancing()) return;
+  unsigned long now = millis();
+  danceStart = now ? now : 1;
+  danceCount++;
+}
 char screenMsg[25] = "";
 char sdResult[8] = "?";
 
@@ -153,6 +168,8 @@ void micTask(void*) {
     }
     soundLevel = rms;
     if (rms > soundPeak) soundPeak = rms;
+    // A clap on the home or dance screen starts the Unicorn Dance Party
+    if (rms > CLAP_LEVEL && (screenView == V_HOME || screenView == V_DANCE)) startDance();
   }
 }
 
@@ -273,6 +290,27 @@ float loudness(int level) {
   return v < 0 ? 0 : v > 1 ? 1 : v;
 }
 
+// The unicorn bitmap, drawn pixel by pixel so it can face either way
+void drawUnicorn(int x0, int y0, bool flip) {
+  const int stride = (UNICORN_W + 7) / 8;
+  for (int y = 0; y < UNICORN_H; y++)
+    for (int x = 0; x < UNICORN_W; x++)
+      if (UNICORN_BITS[y * stride + x / 8] & (1 << (x % 8)))
+        u8g2.drawPixel(x0 + (flip ? UNICORN_W - 1 - x : x), y0 + y);
+}
+
+// Heart Twirl: the unicorn sways and turns around while lots of hearts float up and wobble
+void drawHeartTwirl(unsigned long t) {
+  int x = 4 + (int)lroundf(sinf(t / 1000.0f * 1.5f * 2 * PI) * 3);
+  drawUnicorn(x, 0, (t / 750) % 2 == 1);
+  for (int i = 0; i < HEARTS; i++) {
+    float period = 1200 + (i * 370) % 1000;  // each heart floats at its own speed
+    float p = fmodf(t / period + i / (float)HEARTS, 1.0f);
+    int hx = 41 + (i * 11) % 28 + (int)lroundf(sinf(p * 4 * PI + i) * 2);
+    drawHeart(hx, 44 - (int)(p * 50), i % 3 == 0 ? 2 : 1);
+  }
+}
+
 void updateScreen() {
   static unsigned long last = 0;
   unsigned long now = millis();
@@ -280,6 +318,11 @@ void updateScreen() {
   last = now;
 
   u8g2.clearBuffer();
+  if (dancing()) {
+    drawHeartTwirl(now - danceStart);
+    u8g2.sendBuffer();
+    return;
+  }
   bool blink = (now % 4000) < 160;
   u8g2.drawXBMP(0, 0, UNICORN_W, UNICORN_H, blink ? UNICORN_BLINK_BITS : UNICORN_BITS);
 
@@ -356,6 +399,11 @@ void updateScreen() {
       }
       break;
     }
+    case V_DANCE:
+      u8g2.setFont(u8g2_font_6x10_tr);
+      drawCentered("clap", 14);
+      drawCentered("me!", 26);
+      break;
     default: break;
   }
   u8g2.sendBuffer();
@@ -448,6 +496,14 @@ esp_err_t screenHandler(httpd_req_t* req) {
   return sendJson(req, String("{\"view\":\"") + VIEW_NAMES[screenView] + "\",\"screen\":" + (screenOk ? "true" : "false") + "}");
 }
 
+// /api/dance?go=1 starts a dance; either way it says how long is left
+esp_err_t danceHandler(httpd_req_t* req) {
+  char go[4];
+  if (queryParam(req, "go", go, sizeof(go))) startDance();
+  unsigned long left = dancing() ? DANCE_MS - (millis() - danceStart) : 0;
+  return sendJson(req, String("{\"left\":") + left + ",\"total\":" + DANCE_MS + ",\"count\":" + danceCount + "}");
+}
+
 esp_err_t captureHandler(httpd_req_t* req) {
   camera_fb_t* fb = cameraOk ? esp_camera_fb_get() : nullptr;
   if (!fb) {
@@ -495,6 +551,7 @@ void startWeb() {
       {"/api/sound", HTTP_GET, soundHandler, nullptr},
       {"/api/sd", HTTP_GET, sdHandler, nullptr},
       {"/api/screen", HTTP_GET, screenHandler, nullptr},
+      {"/api/dance", HTTP_GET, danceHandler, nullptr},
       {"/capture", HTTP_GET, captureHandler, nullptr},
     };
     for (auto& u : uris) httpd_register_uri_handler(web, &u);

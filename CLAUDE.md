@@ -151,4 +151,6 @@ She loves **unicorns, animals, spy stuff, and a bit of hacking**.
 - [x] 2026-10-10: workshop created from ai-petbot; she named it **Magic Bot Workshop** (`pickers/01-lab-name.html`, pick 9)
 - [x] 2026-10-10: she named the robot **Sparkle** (`pickers/02-robot-name.html`, pick 1). `ROBOT_NAME`/`ROBOT_HOST` in
   `firmware/petbot_test/petbot_test.ino`; the OLED says "Hi! Sparkle"; the web page is http://sparkle.local (flashed + verified)
-- [ ] Next: ask her for her next idea
+- [x] 2026-10-11: Unicorn Dance Party (`pickers/03-dance-party.html`, pick 8 Heart Twirl). A clap (`CLAP_LEVEL` 1200) on the
+  home or Dance page starts an 8 s dance with 10 hearts; web 💃 Dance page + `/api/dance`. Real claps tested by her ✅
+- [ ] Next: a Harry Potter–style wizard idea (she loves Harry Potter too)

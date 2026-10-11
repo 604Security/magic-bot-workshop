@@ -60,7 +60,8 @@ header{text-align:center; padding:22px 16px 6px}
 .tile b{font-size:27px}
 .tile small{font-size:17px; opacity:.85}
 .t-yellow{background:var(--yellow)} .t-pink{background:var(--pink)} .t-blue{background:var(--blue)}
-.t-green{background:var(--green)} .t-purple{background:var(--purple)} .t-mint{background:var(--mint)}
+.t-green{background:var(--green)} .t-purple{background:var(--purple)} .t-mint{background:var(--mint)} .t-orange{background:var(--orange)}
+.dancecount{font-size:26px; font-weight:700; margin-top:16px}
 .status{text-align:center; color:var(--muted); margin-top:26px; font-size:17px}
 
 .back{display:inline-block; margin:18px 0 4px; padding:6px 14px; border:3px solid var(--line); border-radius:999px;
@@ -155,6 +156,7 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
     <a class="tile t-purple" href="#screen"><span class="emo">🦄</span><b>Screen</b><small>Say hi to my unicorn!</small></a>
     <a class="tile t-green" href="#memory"><span class="emo">💾</span><b>Memory</b><small>Check my memory card</small></a>
     <a class="tile t-mint" href="#wifi"><span class="emo">📶</span><b>Wi-Fi</b><small>How strong is my signal?</small></a>
+    <a class="tile t-orange" href="#dance"><span class="emo">💃</span><b>Dance</b><small>Clap and my unicorn dances!</small></a>
   </nav>
   <p class="status" id="status">Waking Sparkle up…</p>
 </section>
@@ -226,6 +228,16 @@ footer{text-align:center; color:var(--muted); font-size:15px; margin-top:34px}
     <button id="unicornbtn">🦄 Unicorn</button>
   </div>
   <p class="hint" id="screenmsg" style="margin-top:14px"></p>
+</section>
+
+<!-- ============ DANCE ============ -->
+<section id="dance" class="panel" hidden>
+  <a class="back" href="#">← Menu</a>
+  <h2>💃 Unicorn Dance Party</h2>
+  <p class="hint">Clap your hands loud! 👏 Sparkle's unicorn does the <b>Heart Twirl</b>. 💕</p>
+  <div class="oled" title="What Sparkle's real screen looks like"><canvas id="danceoled" width="288" height="160" aria-label="Sparkle's screen"></canvas></div>
+  <p style="margin-top:18px"><button id="dancebtn">💃 Dance now!</button></p>
+  <p class="dancecount" id="dancecount"></p>
 </section>
 
 <!-- ============ MEMORY ============ -->
@@ -343,7 +355,7 @@ const FACE = {
 };
 
 // ---------- router: each test has its own link, e.g. /#sounds ----------
-const PANELS = ['home', 'lights', 'sounds', 'eyes', 'screen', 'memory', 'wifi'];
+const PANELS = ['home', 'lights', 'sounds', 'eyes', 'screen', 'memory', 'wifi', 'dance'];
 let timers = [];
 function every(ms, fn) { fn(); timers.push(setInterval(fn, ms)); }
 function stopAll() {
@@ -532,8 +544,49 @@ function startWifi() {
   }).catch(() => {}));
 }
 
+// ---------- dance: the same Heart Twirl the real screen draws ----------
+function drawDance(cv, t) {
+  const g = cv.getContext('2d'), s = cv.width / 72;
+  g.fillStyle = '#05060A'; g.fillRect(0, 0, cv.width, cv.height);
+  g.fillStyle = '#EAF6FF';
+  const dot = (x, y) => { if (x >= 0 && x < 72 && y >= 0 && y < 40) g.fillRect(x * s, y * s, s - 0.6, s - 0.6); };
+  const unicorn = (x0, flip) => U_OPEN.forEach((row, y) => [...row].forEach((b, x) => { if (b === '1') dot(x0 + (flip ? 35 - x : x), y); }));
+  const heart = (x, y, r) => {
+    for (let dy = -r; dy <= 2 * r + 2; dy++) for (let dx = -2 * r - 1; dx <= 2 * r + 1; dx++) {
+      const inT = dy > 0 && Math.abs(dx) <= (2 * r + 1) * (1 - dy / (2 * r + 3));
+      if ((dx + r) ** 2 + dy ** 2 <= r * r + 1 || (dx - r) ** 2 + dy ** 2 <= r * r + 1 || inT) dot(x + dx, y + dy);
+    }
+  };
+  if (t === null) {  // waiting for a clap
+    unicorn(0, false);
+    g.font = (s * 9) + 'px "Space Mono", monospace'; g.textAlign = 'center';
+    g.fillText('clap', 54 * s, 13 * s); g.fillText('me!', 54 * s, 25 * s);
+    return;
+  }
+  unicorn(4 + Math.round(Math.sin(t / 1000 * 1.5 * 2 * Math.PI) * 3), Math.floor(t / 750) % 2 === 1);
+  const HEARTS = 10;
+  for (let i = 0; i < HEARTS; i++) {
+    const period = 1200 + (i * 370) % 1000, p = ((t / period) + i / HEARTS) % 1;
+    heart(41 + (i * 11) % 28 + Math.round(Math.sin(p * 4 * Math.PI + i) * 2), 44 - Math.floor(p * 50), i % 3 === 0 ? 2 : 1);
+  }
+}
+let danceT0 = 0, danceLeft = 0;
+function showDance(r) {
+  if (r.left > 0 && danceLeft === 0) danceT0 = performance.now() - (r.total - r.left);
+  danceLeft = r.left;
+  $('dancecount').textContent = r.count ? `🦄 Sparkle has danced ${r.count} time${r.count === 1 ? '' : 's'}!` : '';
+}
+$('dancebtn').onclick = () => api('/api/dance?go=1').then(showDance).catch(() => {});
+function startDance() {
+  every(250, () => api('/api/dance').then(showDance).catch(() => {}));
+  every(50, () => {
+    const t = performance.now() - danceT0;
+    drawDance($('danceoled'), danceLeft > 0 ? t : null);
+  });
+}
+
 const START = {home: startHome, lights: startLights, sounds: startSounds, eyes: startEyes,
-               screen: startScreen, memory: startMemory, wifi: startWifi};
+               screen: startScreen, memory: startMemory, wifi: startWifi, dance: startDance};
 route();
 </script>
 </body>
