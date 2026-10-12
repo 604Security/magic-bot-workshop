@@ -46,7 +46,8 @@ Sparkle answering, and saves each screen. It already caught two real bugs before
 </details>
 
 Code: [`firmware/cyd/cyd_menu`](firmware/cyd/cyd_menu). Pictures are made from Noto Color Emoji by
-[`tools/emoji_icons.py`](tools/emoji_icons.py). The house crests are our own shields with animals, not the official ones.
+[`tools/emoji_icons.py`](tools/emoji_icons.py). Screen settings come from TalkingSasquach's
+[SquachWatch-CYD](https://github.com/skizzophrenic/SquachWatch-CYD). The house crests are our own shields with animals, not the official ones.
 
 ## 🎨 How she decides: pick-a-number pages
 
@@ -82,6 +83,14 @@ Then type **`/sparkle`**. Claude checks the robot, opens its web page, and asks 
 Started from `ai-petbot`. See [CLAUDE.md](CLAUDE.md) for hardware, toolchain, and the kid-mode rules.
 
 _Screenshots use demo values (her spy name, no network details)._
+
+## 🙏 Thanks
+- **[TalkingSasquach](https://github.com/skizzophrenic)** for [SquachWatch-CYD](https://github.com/skizzophrenic/SquachWatch-CYD):
+  its tested Cheap Yellow Display screen settings got the yellow screen working first try, and its PC emulator
+  inspired our `make sim`.
+- **Marcelo Rovai** and **Prof. Vijay Janapa Reddi** for the Harvard *Machine Learning Systems* XIAO labs
+  ([mlsysbook.ai](https://mlsysbook.ai)), which got Sparkle's hardware running.
+- **Noto Color Emoji** (Google, SIL Open Font License) for the pictures on the yellow screen.
 
 ## Licence
 - **Code:** MIT ([LICENSE](LICENSE))

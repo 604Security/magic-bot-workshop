@@ -1,5 +1,7 @@
 // Magic Bot Workshop CYD emulator: runs the real firmware/cyd/cyd_menu sketch on a laptop and saves pictures.
 //   make sim            -> docs/screenshots/cyd-*.png
+// Idea from TalkingSasquach's SquachWatch-CYD PC emulator (https://github.com/skizzophrenic/SquachWatch-CYD);
+// this one is written from scratch for the Magic Bot Workshop.
 // A pretend Sparkle (below) answers the sketch's Wi-Fi questions; scenes tap the screen and change Sparkle's
 // answers, then save what the screen shows.
 #include <Arduino.h>

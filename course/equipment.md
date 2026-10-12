@@ -27,8 +27,10 @@ Tips:
 - USB chip **CH340** (appears as `/dev/ttyUSB0` on Linux).
 - ⚠️ **Same board, two possible screen chips**: **ST7789** or **ILI9341**. You can't tell from outside. Flash a
   colour-bar test with each setting; the one where "RED" is red is yours. (Ours: ST7789.)
-- Screen settings borrowed from the open-source **SquachWatch-CYD** project
-  (https://github.com/604Security/SquachWatch-CYD), which supports both chips.
+- Screen settings borrowed from **TalkingSasquach**'s open-source **SquachWatch-CYD** project
+  (https://github.com/skizzophrenic/SquachWatch-CYD), which supports both chips. Thank you!
+- ⚠️ SquachWatch's settings leave the big font (font 4) off to save space. Turn on `LOAD_FONT4` if your screens
+  use it, or big text silently draws nothing.
 
 ## Cables, computer and network
 - **A good USB-C *data* cable.** Charge-only cables don't show up at all. A worn cable can work for small uploads

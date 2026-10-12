@@ -1,3 +1,5 @@
+// From SquachWatch-CYD by TalkingSasquach: https://github.com/skizzophrenic/SquachWatch-CYD (thank you!)
+// Magic Bot Workshop change: LOAD_FONT4 turned on.
 // SquachWatch-CYD — TFT_eSPI user setup (ILI9341 variant)
 // Some ESP32-2432S028R ("CYD") batches ship the older ILI9341 panel
 // instead of ST7789 -- same 2.8"/240x320 glass and pinout, different

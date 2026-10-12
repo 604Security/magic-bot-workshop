@@ -77,7 +77,8 @@ The app greets her by her real name from `firmware/petbot_test/config.h` (`KID_N
 ### CYD: Sparkle's friend (Cheap Yellow Display, added 2026-10-11)
 - **ESP32-2432S028R**, 2.8" 320x240 colour touchscreen. ESP32-D0WD-V3, 4 MB flash, **CH340 USB → `/dev/ttyUSB0`**.
 - Screen chip: **ST7789** (verified with `firmware/cyd/cyd_screen_test`: colour bars correct). Screen settings come from
-  the user's fork https://github.com/604Security/SquachWatch-CYD (`include/cyd_user_setup.h`), saved as
+  TalkingSasquach's SquachWatch-CYD (upstream https://github.com/skizzophrenic/SquachWatch-CYD, credited in README;
+  the user's copy is https://github.com/604Security/SquachWatch-CYD) (`include/cyd_user_setup.h`), saved as
   `firmware/cyd/screens/st7789.h` (+ `ili9341.h` for the other variant). Backlight GPIO21.
 - Touch: XPT2046 on its own SPI: CLK 25, MISO 39, MOSI 32, CS 33, IRQ 36. Also has an RGB LED and a speaker connector.
 - Build/flash: **`make cyd-flash CYD_SKETCH=firmware/cyd/<sketch> CYD_SCREEN=st7789`** (FQBN `esp32:esp32:esp32`).
