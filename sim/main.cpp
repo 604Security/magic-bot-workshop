@@ -181,6 +181,11 @@ int main(int argc, char** argv) {
   shot("cyd-dance-hearts");
   sp.danceLeft = 0;
 
+  // Badges: tap the medal on the menu
+  toMenu();
+  tap(300, 18);
+  shot("cyd-badges");
+
   // Disco
   open(G_DISCO);
   run(12);

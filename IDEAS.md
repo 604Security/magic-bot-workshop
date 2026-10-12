@@ -27,8 +27,8 @@ Every idea goes here, in her words. ✅ = built, 🏅 = badge earned, ⭐ = **ke
 - 🏅 **Makeover Wizard**: gave Sparkle's web page the spooky green Potions Dungeon look (2026-10-11)
 - 🏅 **Potion Master**: built the Potion Mixer with 12 potions to discover (2026-10-11)
 - 🏅 **Spell Caster**: swished Sparkle like a wand and cast spells (2026-10-11)
+- 🏅 **Spy Camera Agent**: saw through Sparkle's eye on the yellow screen and loved it (2026-10-11)
+- 🏅 **Remote Wizard**: the yellow screen became Sparkle's remote control, with the Colour Sorting Hat inside (2026-10-11)
 
 ## 🤫 Grown-up tests (surprises she hasn't seen yet)
 - (none right now)
-- 🏅 **Spy Camera Agent**: saw through Sparkle's eye on the yellow screen and loved it (2026-10-11)
-- 🏅 **Remote Wizard**: the yellow screen became Sparkle's remote control, with the Colour Sorting Hat inside (2026-10-11)

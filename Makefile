@@ -54,6 +54,7 @@ CYD_FLAGS   = --build-property "compiler.cpp.extra_flags=-DUSER_SETUP_LOADED=1 -
 
 .PHONY: cyd-build cyd-flash
 cyd-build:
+	python3 tools/badges.py > firmware/cyd/cyd_menu/badges.h
 	$(CLI) compile --fqbn $(CYD_FQBN) $(CYD_FLAGS) $(CYD_SKETCH)
 
 cyd-flash: cyd-build
@@ -61,10 +62,11 @@ cyd-flash: cyd-build
 
 # ---- CYD emulator: runs the real cyd_menu sketch on the laptop and saves pictures (needs g++ and Python PIL)
 #   make sim   -> docs/screenshots/cyd-*.png
-SIM_FLAGS = -std=gnu++17 -O1 -w -Isim/shim -I$(HOME)/Arduino/libraries/TFT_eSPI -include firmware/cyd/screens/$(CYD_SCREEN).h
+SIM_FLAGS = -std=gnu++17 -O1 -w -DSIM_PUBLIC_PICTURES -Isim/shim -I$(HOME)/Arduino/libraries/TFT_eSPI -include firmware/cyd/screens/$(CYD_SCREEN).h
 .PHONY: sim
 sim:
 	@mkdir -p sim/out
+	python3 tools/badges.py > firmware/cyd/cyd_menu/badges.h
 	g++ $(SIM_FLAGS) sim/main.cpp -o sim/out/cyd-sim
 	./sim/out/cyd-sim sim/out
 	python3 sim/to_png.py sim/out docs/screenshots

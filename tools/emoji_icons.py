@@ -16,7 +16,7 @@ ICONS = [  # (C name, emoji, size)
     ("HAT", "🎩", 48), ("OWL", "🦉", 48), ("LETTER", "💌", 48), ("TROPHY", "🏆", 48),
     ("BULB", "💡", 48), ("STAR", "⭐", 48), ("FEATHER", "🪶", 48), ("ZAP", "⚡", 48), ("BOOM", "💥", 48),
     ("WAND", "🪄", 48), ("POTION", "🧪", 48), ("BOOK", "📖", 32),
-    ("CAMERA", "📷", 48), ("DANCER", "💃", 48), ("DISCO", "🪩", 48),
+    ("CAMERA", "📷", 48), ("DANCER", "💃", 48), ("DISCO", "🪩", 48), ("MEDAL", "🏅", 32),
     # potion ingredients, same order as the web page
     ("I_UNICORN", "🦄", 32), ("I_FROG", "🐸", 32), ("I_RAINBOW", "🌈", 32), ("I_SPIDER", "🕷️", 32),
     ("I_CANDY", "🍬", 32), ("I_PEPPER", "🌶️", 32), ("I_FEATHER", "🪶", 32), ("I_STAR", "⭐", 32),

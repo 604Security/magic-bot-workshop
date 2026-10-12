@@ -17,6 +17,15 @@
 #include "secrets.h"
 #include "icons.h"
 #include "kind_notes.h"
+#include "badges.h"  // made from IDEAS.md by tools/badges.py
+
+// The kid's name lives in config.h, which git ignores (copy it from firmware/petbot_test/config.h).
+#if __has_include("config.h") && !defined(SIM_PUBLIC_PICTURES)  // the emulator never uses the real name
+#include "config.h"
+#endif
+#ifndef KID_NAME
+#define KID_NAME "Megaspy"
+#endif
 
 #define SPARKLE_HOST "sparkle"
 #define SPARKLE_IP_FALLBACK "192.168.86.189"
@@ -166,7 +175,7 @@ void bubble(int x, int y, int w, int h, const String& text) {
 bool backTapped(int x, int y) { return y < 36 && x < 90; }
 
 // ---------------------------------------------------------------- the games
-enum Game { G_HAT, G_CAM, G_SNITCH, G_DANCE, G_OWL, G_WAND, G_POTION, G_DISCO, G_COUNT, G_MENU };
+enum Game { G_HAT, G_CAM, G_SNITCH, G_DANCE, G_OWL, G_WAND, G_POTION, G_DISCO, G_COUNT, G_BADGES, G_MENU };
 const char* TITLES[G_COUNT] = {"Sorting Hat", "Spy Camera", "Snitch", "Dance", "Owl Post", "Wand Wave", "Potions", "Disco"};
 const uint32_t COLORS[G_COUNT] = {0x6B3FA0, 0x333344, 0xB8860B, 0xC2185B, 0x3A5A8A, 0x1E5AA8, 0x2E7D32, 0xE65100};
 const char* VIEWS[G_COUNT] = {"hat", "eyes", "score", "dance", "owl", "wand", "potion", "lights"};
@@ -759,11 +768,46 @@ void discoTick() {
   glow(random(2), random(2), random(2));
 }
 
+// ================= Badges: every badge from Megaspy's Idea Board, newest first
+#define BADGES_PER_PAGE 12
+int badgePage = 0;
+
+void drawBadges() {
+  char title[48];
+  snprintf(title, sizeof(title), "%s's Badges", KID_NAME);
+  header(title, 0x2A1F00);
+  uint16_t gold = rgb(0xFFD700);
+  if (BADGE_COUNT == 0) {
+    bigText("No badges yet!", 110, gold, 0x2A1F00);
+    return;
+  }
+  for (int k = 0; k < BADGES_PER_PAGE; k++) {
+    int i = BADGE_COUNT - 1 - (badgePage * BADGES_PER_PAGE + k);  // newest first
+    if (i < 0) break;
+    int x = 4 + (k % 2) * 158, y = 40 + (k / 2) * 33;
+    tft.fillRoundRect(x, y, 154, 31, 8, rgb(i == BADGE_COUNT - 1 ? 0x6A4A00 : 0x3E2E00));
+    icon(x, y, MEDAL, 32);
+    tft.setTextColor(i == BADGE_COUNT - 1 ? gold : TFT_WHITE);
+    tft.drawString(BADGE_NAMES[i], x + 34, y + 8, 2);
+  }
+  if (BADGE_COUNT > BADGES_PER_PAGE) {
+    tft.setTextColor(rgb(0xBFA35A));
+    tft.drawCentreString("Tap for more badges", 160, 226, 1);
+  }
+}
+
+void badgesTap() {
+  int pages = (BADGE_COUNT + BADGES_PER_PAGE - 1) / BADGES_PER_PAGE;
+  badgePage = pages ? (badgePage + 1) % pages : 0;
+  drawBadges();
+}
+
 // ---------------------------------------------------------------- the menu
 void drawMenu() {
   tft.fillScreen(rgb(0x0D1410));
   tft.setTextColor(rgb(0x7DFF9D));
-  tft.drawCentreString("Sparkle's Great Hall", 160, 6, 4);
+  tft.drawCentreString("Sparkle's Great Hall", 150, 6, 4);
+  icon(286, 2, MEDAL, 32);  // tap the medal for the badge board
   for (int i = 0; i < G_COUNT; i++) {
     int x = 4 + (i % 4) * 79, y = 38 + (i / 4) * 100;
     tft.fillRoundRect(x, y, 74, 94, 12, rgb(COLORS[i]));
@@ -842,7 +886,11 @@ void loop() {
   int x, y;
   if (tapped(x, y)) {
     if (game == G_MENU) {
-      if (y >= 38) {
+      if (y < 36 && x > 270) {  // the medal: badge board
+        game = G_BADGES;
+        badgePage = 0;
+        drawBadges();
+      } else if (y >= 38) {
         int i = (y - 38) / 100 * 4 + x / 80;
         if (i >= 0 && i < G_COUNT) openGame(i);
       }
@@ -853,6 +901,7 @@ void loop() {
       drawMenu();
     } else if (game == G_OWL) owlTap(x, y);
     else if (game == G_POTION) potionTap(x, y);
+    else if (game == G_BADGES) badgesTap();
     else if (game == G_SNITCH && snWon) snitchEnter();  // play again
     // (no tap-to-sort on purpose: shaking Sparkle is the magic)
   }
