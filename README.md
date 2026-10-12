@@ -82,7 +82,7 @@ Then type **`/sparkle`**. Claude checks the robot, opens its web page, and asks 
 
 Started from `ai-petbot`. See [CLAUDE.md](CLAUDE.md) for hardware, toolchain, and the kid-mode rules.
 
-_Screenshots use demo values (her spy name, no network details)._
+_Screenshots use demo values (her handle, no network details)._
 
 ## 🙏 Thanks
 - **[TalkingSasquach](https://github.com/skizzophrenic)** for [SquachWatch-CYD](https://github.com/skizzophrenic/SquachWatch-CYD):

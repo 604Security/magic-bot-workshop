@@ -26,7 +26,7 @@ and **DFIR-life** (parent & mentor).
 6. **Badge & save**: a badge on the Idea Board, and a commit ("a saved snapshot") explained in plain words.
 
 **Roles:** kid = designer/boss, grown-up = keyboard + safety, AI = builder.
-**Safety:** her spy name in anything public (real name only in a git-ignored config file), robot stays on the home
+**Safety:** her handle in anything public (real name only in a git-ignored config file), robot stays on the home
 network, the grown-up approves pushes and anything online.
 
 ## Labs

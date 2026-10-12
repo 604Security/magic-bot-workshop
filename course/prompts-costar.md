@@ -61,7 +61,7 @@ everything that context carries, so you can reuse it in a fresh project.
 
 ## 6. Privacy by design
 - **Context:** The app should greet her by her real name, but the repo is shared on GitHub.
-- **Objective:** Use her real name in the app, her spy name ("Megaspy") anywhere public.
+- **Objective:** Use her real name in the app, her handle ("Megaspy") anywhere public.
 - **Style:** A git-ignored `config.h` with a committed `config.h.example`.
 - **Tone:** Matter-of-fact; explain it to the grown-up.
 - **Audience:** Grown-up.
