@@ -6,6 +6,6 @@ https://creativecommons.org/licenses/by/4.0/
 
 You may share and adapt it for any purpose, as long as you give credit:
 
-> "Magic Bot Workshop: Vibe Coding for Kids", created by Megaspy (604Security), CC BY 4.0
+> "Magic Bot Workshop: Vibe Coding for Kids", created by Megaspy with DFIR-life (604Security), CC BY 4.0
 
 The code (firmware, Makefile, scripts) is under the MIT licence in the top-level `LICENSE` file.

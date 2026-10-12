@@ -5,7 +5,8 @@ she sees it come alive on the robot. The robot is a Seeed **XIAO ESP32S3 Sense**
 OLED, IMU), copied (with git history) from the `ai-petbot` repo on 2026-10-10. She chose the name (option 9).
 
 She loves **unicorns, animals, spy stuff, a bit of hacking, and Harry Potter**.
-She goes by **Megaspy** (her spy name, from the SIA spy game). The project is credited to her: use "Megaspy", never her real name, in anything committed.
+She goes by **Megaspy** (her spy name, from the SIA spy game). The grown-up is credited as **DFIR-life** (parent & mentor).
+The project is credited to her: use "Megaspy", never her real name, in anything committed.
 The app greets her by her real name from `firmware/petbot_test/config.h` (`KID_NAME`, gitignored). Committed fallback and
 `config.h.example` say "Megaspy". Never write the real name into a tracked file.
 

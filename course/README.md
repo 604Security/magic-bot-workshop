@@ -4,7 +4,8 @@ A hands-on course where a child (age ~6–10) **designs** and an AI coding assis
 robot. The child never has to type: they bring ideas, pick from moving "pick-a-number" previews, and ask for tweaks.
 A grown-up drives the keyboard, approves anything technical or online, and turns each build into a small lesson.
 
-**Shared in the hope that other families find it useful.** Built from the real **Magic Bot Workshop** sessions, created by **Megaspy** (age 7) with the robot **Sparkle**.
+**Shared in the hope that other families find it useful.** Built from the real **Magic Bot Workshop** sessions, created by **Megaspy** (age 7) with the robot **Sparkle**,
+and **DFIR-life** (parent & mentor).
 
 ## Who it's for
 - **Kid:** ages 6–10, no reading fluency needed (every choice has 🔊 read-aloud). Loves stories, animals, magic, spies.

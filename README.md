@@ -1,6 +1,7 @@
 # Magic Bot Workshop 🪄🤖
 
-**Created by Megaspy 🦄🕵️ (age 7)**: all the ideas, names and picks are hers. A grown-up helper and Claude did the typing.
+**Created by Megaspy 🦄🕵️ (age 7)** with **[DFIR-life](https://github.com/DFIR-life)** (parent & mentor).
+All the ideas, names and picks are Megaspy's; DFIR-life and Claude did the typing.
 
 A kid's **vibe coding** workshop: she dreams up ideas for her robot **Sparkle**, picks from moving pick-a-number
 pages, and watches them come alive on a Seeed XIAO ESP32S3 Sense (camera, mic, motion sensor, tiny OLED screen).

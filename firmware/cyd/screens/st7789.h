@@ -77,6 +77,7 @@
 // NOTE: editing this file does not rebuild the library -- delete
 // .pio/build/<env>/lib*/TFT_eSPI first, or the board runs the old config.
 #define LOAD_FONT2
+#define LOAD_FONT4  // Magic Bot Workshop: the big font for house, spell and potion names (it was missing!)
 
 // This ST7789 panel is normal (non-inverted) polarity; BGR order.
 #define TFT_INVERSION_OFF

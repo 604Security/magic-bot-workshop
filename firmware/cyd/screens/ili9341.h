@@ -59,6 +59,7 @@
 // NOTE: editing this file does not rebuild the library -- delete
 // .pio/build/<env>/lib*/TFT_eSPI first, or the board runs the old config.
 #define LOAD_FONT2
+#define LOAD_FONT4  // Magic Bot Workshop: the big font for house, spell and potion names (it was missing!)
 
 // ILI9341 is normal (non-inverted) polarity, RGB order -- the two
 // lines that actually differ from cyd_user_setup.h's ST7789 config.
