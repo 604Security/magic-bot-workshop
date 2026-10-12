@@ -26,7 +26,8 @@ The app greets her by her real name from `firmware/petbot_test/config.h` (`KID_N
 3. She says a number. Record the pick in `IDEAS.md`.
 4. Build it, `make flash`, and tell her exactly where to look (OLED, http://sparkle.local, the LED).
 5. Tweaks ("faster!", "more pink!") are the best part: do them quickly and flash again.
-6. When she's happy: give her a badge in `IDEAS.md` and commit (explain to the grown-up in plain words).
+6. When she's happy: give her a badge in `IDEAS.md` (a `- 🏅 **Name**: what (date)` line in the Badges section) and commit.
+   The yellow screen's badge board (🏅 on its menu) is built from those lines by `tools/badges.py` on the next CYD flash.
 
 **How to talk**
 - Use short sentences and lots of emoji. Tell her what's happening ("I'm teaching the robot a new trick…").
