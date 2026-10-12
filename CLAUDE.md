@@ -81,6 +81,10 @@ The app greets her by her real name from `firmware/petbot_test/config.h` (`KID_N
 - Touch: XPT2046 on its own SPI: CLK 25, MISO 39, MOSI 32, CS 33, IRQ 36. Also has an RGB LED and a speaker connector.
 - Build/flash: **`make cyd-flash CYD_SKETCH=firmware/cyd/<sketch> CYD_SCREEN=st7789`** (FQBN `esp32:esp32:esp32`).
   TFT_eSPI 2.5.43 is configured by `-include`-ing the screen header (no editing the library's User_Setup).
+- **Emulator: `make sim`** (`sim/`) compiles the real `cyd_menu` sketch with laptop stand-ins (TFT_eSPI with the library's own
+  font 2/4 tables, pretend Wi-Fi/HTTP/touch, a pretend Sparkle in `sim/main.cpp`) and writes `docs/screenshots/cyd-*.png`.
+  Use it to check CYD screens before flashing; add a scene in `main()` for new screens. It models two device gotchas:
+  fonts not loaded in the screen header draw nothing, and `pushImage` needs `setSwapBytes(true)` for our icon arrays.
 - It was running SquachWatch (serial 2,000,000 baud) before we overwrote it; flash SquachWatch back from the fork if needed.
 
 ## Toolchain
@@ -195,5 +199,6 @@ The app greets her by her real name from `firmware/petbot_test/config.h` (`KID_N
      - Owl Post: a letter back must appear on the CYD (real reply from new Sparkle; CYD fallback after 7 s for old Sparkle).
      - Potions: potion name shown big on the result screen + "Last potion" line.
      - Sorting Hat: house name + animal crest must show after a shake (fixed `hatRevealed` bug).
+     - Font 4 now loaded and icon colours byte-swapped correctly (both verified in `make sim`, not yet on the device).
 - **Plan: final game menu.** When the experiments are done, take every ⭐ keeper in `IDEAS.md` and build a polished game
   menu on the web page. Keep the keeper code intact until then (don't refactor it away).

@@ -31,7 +31,19 @@ A "Cheap Yellow Display" (ESP32 + 2.8" colour touchscreen) is Sparkle's remote: 
 while the yellow screen shows the colourful part (house crests, spell names, potion pictures, a Quidditch pitch, letters
 from Sparkle). The action still happens on Sparkle: you shake it, clap at it, swish it like a wand.
 
+| | | |
+|:-:|:-:|:-:|
+| <img src="docs/screenshots/cyd-menu.png" width="260" alt="Menu"><br>🏰 **The menu**: tap a game | <img src="docs/screenshots/cyd-hat-gryffindor.png" width="260" alt="Gryffindor"><br>🎩 **Sorting Hat**: shake Sparkle, get your crest | <img src="docs/screenshots/cyd-hat-thinking.png" width="260" alt="Hat thinking"><br>🤔 The hat thinks out loud |
+| <img src="docs/screenshots/cyd-snitch.png" width="260" alt="Snitch"><br>🟡 **Snitch**: clap at Sparkle when it's in the box | <img src="docs/screenshots/cyd-snitch-win.png" width="260" alt="Win"><br>🏆 10 catches wins | <img src="docs/screenshots/cyd-owl-letter.png" width="260" alt="Owl letter"><br>🦉 **Owl Post**: Sparkle writes back |
+| <img src="docs/screenshots/cyd-wand-lumos.png" width="260" alt="Lumos"><br>🪄 **Wand Wave**: swish Sparkle, cast a spell | <img src="docs/screenshots/cyd-potion-result.png" width="260" alt="Potion"><br>🧪 **Potions**: 3 ingredients, shake to stir | <img src="docs/screenshots/cyd-potion-book.png" width="260" alt="Recipe book"><br>📖 The recipe book remembers |
+
+These pictures come from a **CYD emulator** (`make sim`): it runs the real yellow-screen code on a laptop, with a pretend
+Sparkle answering, and saves each screen. It already caught two real bugs before they reached the device
+(a missing font and scrambled picture colours). The camera picture in the emulator is a pretend photo.
+
+<details><summary>All the pictures the yellow screen uses</summary>
 <p align="center"><img src="docs/screenshots/cyd-pictures.png" width="90%" alt="The pictures the yellow screen uses"></p>
+</details>
 
 Code: [`firmware/cyd/cyd_menu`](firmware/cyd/cyd_menu). Pictures are made from Noto Color Emoji by
 [`tools/emoji_icons.py`](tools/emoji_icons.py). The house crests are our own shields with animals, not the official ones.
@@ -64,7 +76,8 @@ claude
 Then type **`/sparkle`**. Claude checks the robot, opens its web page, and asks her for the next idea.
 
 - Flash Sparkle: `make petbot-test` (or `make flash-safe SKETCH=firmware/petbot_test` with a flaky cable)
-- Flash the yellow screen: `make cyd-flash CYD_SKETCH=firmware/cyd/cyd_spycam`
+- Flash the yellow screen: `make cyd-flash CYD_SKETCH=firmware/cyd/cyd_menu`
+- See the yellow screen without flashing: `make sim` (pictures land in `docs/screenshots/cyd-*.png`)
 
 Started from `ai-petbot`. See [CLAUDE.md](CLAUDE.md) for hardware, toolchain, and the kid-mode rules.
 

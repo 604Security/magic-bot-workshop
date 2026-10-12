@@ -58,3 +58,13 @@ cyd-build:
 
 cyd-flash: cyd-build
 	$(CLI) upload --fqbn $(CYD_FQBN) -p $(CYD_PORT) $(CYD_SKETCH)
+
+# ---- CYD emulator: runs the real cyd_menu sketch on the laptop and saves pictures (needs g++ and Python PIL)
+#   make sim   -> docs/screenshots/cyd-*.png
+SIM_FLAGS = -std=gnu++17 -O1 -w -Isim/shim -I$(HOME)/Arduino/libraries/TFT_eSPI -include firmware/cyd/screens/$(CYD_SCREEN).h
+.PHONY: sim
+sim:
+	@mkdir -p sim/out
+	g++ $(SIM_FLAGS) sim/main.cpp -o sim/out/cyd-sim
+	./sim/out/cyd-sim sim/out
+	python3 sim/to_png.py sim/out docs/screenshots

@@ -38,7 +38,13 @@ Preferences prefs;
 String sparkle;
 
 uint16_t rgb(uint32_t c) { return tft.color565(c >> 16, (c >> 8) & 255, c & 255); }
-void icon(int x, int y, const uint16_t* data, int size) { tft.pushImage(x, y, size, size, data, ICON_KEY); }
+// The pictures are stored as normal 16-bit colours, so the screen must swap their bytes on the way out
+// (the camera's JPEG decoder swaps its own, so swapping stays off the rest of the time).
+void icon(int x, int y, const uint16_t* data, int size) {
+  tft.setSwapBytes(true);
+  tft.pushImage(x, y, size, size, data, ICON_KEY);
+  tft.setSwapBytes(false);
+}
 
 // ---------------------------------------------------------------- light, sound, touch
 void glow(bool r, bool g, bool b) {

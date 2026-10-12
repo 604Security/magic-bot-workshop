@@ -55,4 +55,6 @@ what to say to the kid, the "magic spell" line of real code to show, common oops
 - **Ask, build, show, tweak** beats explaining. One line of real code per lab, framed as a magic spell.
 - **Kids are great testers.** She found the Snitch too hard and Gryffindor too common, and fixed both.
 - **Don't polish what doesn't matter.** Spend the time on fun features, not cosmetic bugs.
+- **Emulate before you flash.** A tiny laptop emulator for the colour screen caught invisible text and scrambled
+  colours before they reached her (`make sim`).
 - **Hardware is real.** Loose cables happen; have a plan B (`make flash-safe`).
