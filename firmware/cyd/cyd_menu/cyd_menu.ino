@@ -323,19 +323,28 @@ void pitchBits() {
     for (int k = 0; k < 3; k++) {
       int hx = x + (side ? -k * 12 : k * 12), top = 70 + k * 18;
       tft.drawCircle(hx, top, 8, white);
-      tft.drawFastVLine(hx, top + 8, 230 - top - 8, white);
+      tft.drawFastVLine(hx, top + 8, 204 - top - 8, white);
     }
   }
   tft.drawRect(160 - BOX - 12, 138 - BOX - 12, 2 * BOX + 24, 2 * BOX + 24, gold);
   tft.drawRect(160 - BOX - 11, 138 - BOX - 11, 2 * BOX + 22, 2 * BOX + 22, gold);
 }
 
+// The scoreboard: a big score at the top and 10 stars along the bottom that fill up
 void snitchScoreText() {
   char buf[24];
-  tft.fillRect(84, 4, 236, 28, rgb(PITCH));
-  tft.setTextColor(rgb(0xFFD700));
-  snprintf(buf, sizeof(buf), "Score %d/10  Best %d", snScore, snBest);
-  tft.drawRightString(buf, 314, 9, 2);
+  uint16_t gold = rgb(0xFFD700);
+  tft.fillRect(84, 2, 236, 32, rgb(PITCH));
+  tft.setTextColor(gold);
+  snprintf(buf, sizeof(buf), "%d / %d", snScore, SNITCH_WIN);
+  tft.drawCentreString(buf, 170, 6, 4);
+  snprintf(buf, sizeof(buf), "Best %d", snBest);
+  tft.drawRightString(buf, 314, 12, 2);
+  tft.fillRect(0, 206, 320, 34, rgb(0x0E3A12));
+  for (int i = 0; i < SNITCH_WIN; i++) {
+    if (i < snScore) icon(i * 32, 207, I_STAR, 32);
+    else tft.drawCircle(i * 32 + 16, 223, 9, rgb(0x5A8A5A));
+  }
 }
 
 void snitchEnter() {
@@ -393,11 +402,11 @@ void snitchTry() {
       snitchWin();
       return;
     }
-    bigText("GOT IT!", 196, rgb(0xFFD700), PITCH);
+    bigText("GOT IT!", 172, rgb(0xFFD700), PITCH);
     note(1047, 90);
     note(1319, 160);
   } else {
-    bigText("miss! try again", 196, TFT_WHITE, PITCH);
+    bigText("miss! try again", 172, TFT_WHITE, PITCH);
     note(330, 120);
   }
   snitchScoreText();
@@ -420,7 +429,7 @@ void snitchTick() {
   }
   if (snWon) return;
   if (snMsgUntil && now > snMsgUntil) {
-    tft.fillRect(0, 196, 320, 30, rgb(PITCH));
+    tft.fillRect(0, 172, 320, 30, rgb(PITCH));
     snMsgUntil = 0;
     pitchBits();
   }
@@ -432,7 +441,7 @@ void snitchTick() {
   drawSnitchAt(snX, snY, false, true);
   snPhase += dt * speed;
   snX = 160 + (int)(sinf(snPhase / 430.0f) * 135);
-  snY = 138 + (int)(sinf(snPhase / 270.0f) * 80);
+  snY = 138 + (int)(sinf(snPhase / 270.0f) * 56);  // stays above the star scoreboard
   if (snInBox()) snLastInBox = now;
   pitchBits();
   drawSnitchAt(snX, snY, (now / 80) % 2, false);
