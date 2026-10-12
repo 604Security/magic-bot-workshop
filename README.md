@@ -24,6 +24,17 @@ Every game has a page on Sparkle's web site (http://sparkle.local) **and** shows
 Plus a 🔧 **Tests** menu (lights, sounds, camera, screen, memory card, Wi-Fi) and a 📺 **Spy Camera** on a second
 board, the "Cheap Yellow Display", that shows Sparkle's camera over Wi-Fi.
 
+## 📱 Sparkle's Remote (the yellow touchscreen)
+
+A "Cheap Yellow Display" (ESP32 + 2.8" colour touchscreen) is Sparkle's remote: tap a game and Sparkle switches to it,
+while the yellow screen shows the colourful part (house crests, spell names, potion pictures, a Quidditch pitch, letters
+from Sparkle). The action still happens on Sparkle: you shake it, clap at it, swish it like a wand.
+
+<p align="center"><img src="docs/screenshots/cyd-pictures.png" width="90%" alt="The pictures the yellow screen uses"></p>
+
+Code: [`firmware/cyd/cyd_menu`](firmware/cyd/cyd_menu). Pictures are made from Noto Color Emoji by
+[`tools/emoji_icons.py`](tools/emoji_icons.py). The house crests are our own shields with animals, not the official ones.
+
 ## 🎨 How she decides: pick-a-number pages
 
 Every choice is a page of numbered, **moving** previews with a 🔊 button that reads it aloud. She says a number;

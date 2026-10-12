@@ -16,6 +16,7 @@
 #include <XPT2046_Touchscreen.h>
 #include "secrets.h"
 #include "icons.h"
+#include "kind_notes.h"
 
 #define SPARKLE_HOST "sparkle"
 #define SPARKLE_IP_FALLBACK "192.168.86.189"
@@ -175,7 +176,8 @@ const char* HAT_THINKING[5] = {"Hmm... difficult. VERY difficult.", "Plenty of c
                                "Not a bad mind, either...", "A kind heart, too!", "Where shall I put you?"};
 enum { GRYFFINDOR, RAVENCLAW, HUFFLEPUFF, SLYTHERIN };
 String hatShown;
-long hatShownStart = -2;
+long hatShownStart = -2;  // the sort that was already there when we opened the page
+long hatRevealed = -2;    // the sort we last showed the house for
 
 void drawHat(int cx, bool talking) {
   uint16_t brown = rgb(0x6B4423), dark = rgb(0x3A2410);
@@ -231,8 +233,9 @@ void hatTick() {
   if (j == "") return;
   String state = j.indexOf("\"thinking\"") >= 0 ? "thinking" : j.indexOf("\"done\"") >= 0 ? "done" : "waiting";
   long start = jsonNum(j, "start");
-  bool fresh = hatShownStart != -2 && start != hatShownStart;
-  if ((state == "waiting" && hatShown != "waiting") || (state == "done" && hatShownStart == -2)) {
+  if (hatShownStart == -2) hatShownStart = start;
+  bool fresh = start != hatShownStart && start != hatRevealed;
+  if ((state == "waiting" && hatShown != "waiting") || (state == "done" && hatShown == "")) {
     header("Sorting Hat", 0x2A1A4A);
     hatScene("Shake Sparkle, and I shall sort you!", 0, false);
     glow(0, 0, 0);
@@ -249,8 +252,10 @@ void hatTick() {
     lastLine = line;
     glow((t / 300) % 3 == 0, (t / 300) % 3 == 1, (t / 300) % 3 == 2);
   }
-  if (state == "done" && fresh) houseReveal(jsonNum(j, "house"));
-  hatShownStart = start;
+  if (state == "done" && fresh) {
+    houseReveal(jsonNum(j, "house"));
+    hatRevealed = start;
+  }
   hatShown = state;
 }
 
@@ -294,6 +299,7 @@ void camTick() {
 #define SNITCH_WIN 10
 #define CATCH_GRACE_MS 2000  // Megaspy's rule: in the box 2 seconds ago still counts!
 #define BOX 34               // half the size of the box in the middle
+#define CLAP_LEVEL 1200      // how loud a clap must be (same as Sparkle's)
 const uint32_t PITCH = 0x1B5E20;
 float snPhase = 0;
 int snX = 160, snY = 138, snScore = 0, snBest = 0;
@@ -333,7 +339,8 @@ void snitchEnter() {
   snClaps = -1;
   snitchScoreText();
   pitchBits();
-  ask("/api/score?score=0");
+  ask("/api/screen?view=sounds");  // an older Sparkle shows its sound meter...
+  ask("/api/score?score=0");       // ...a newer one shows the scoreboard
 }
 
 void drawSnitchAt(int x, int y, bool flap, bool erase) {
@@ -397,10 +404,12 @@ void snitchTick() {
   // ask Sparkle how many claps it heard
   if (now - snLastPoll > 150) {
     snLastPoll = now;
-    long claps = jsonNum(ask("/api/score"), "claps");
-    if (claps >= 0) {
-      if (snClaps >= 0 && claps > snClaps) snitchTry();
-      snClaps = claps;
+    // Sparkle's ears: the loudest sound since we last asked. A clap is very loud!
+    static unsigned long lastClap = 0;
+    long peak = jsonNum(ask("/api/sound"), "peak");
+    if (peak > CLAP_LEVEL && now - lastClap > 400) {
+      lastClap = now;
+      snitchTry();
     }
   }
   if (snWon) return;
@@ -427,6 +436,7 @@ void snitchTick() {
 const char* LETTERS_TO_SEND[6] = {"I LOVE YOU!", "HOOT HOOT!", "HELLO SPARKLE", "YOU ARE MAGIC", "UNICORNS RULE", "TOP SECRET!"};
 long owlSeen = -2;
 bool owlReading = false;
+unsigned long owlSentAt = 0;  // when we sent our letter (for Sparkles that can't write back yet)
 
 void owlEnter() {
   owlReading = false;
@@ -452,6 +462,7 @@ void owlTap(int x, int y) {
   int i = (y - 40) / 52 * 2 + (x >= 160);
   if (i < 0 || i > 5) return;
   ask("/api/owl?msg=" + urlEncode(LETTERS_TO_SEND[i]));
+  owlSentAt = millis();
   header("Owl Post", 0x1D3346);
   for (int x2 = -48; x2 < 330; x2 += 12) {  // our owl flies off to Sparkle
     tft.fillRect(x2 - 12, 90, 60, 52, rgb(0x1D3346));
@@ -465,14 +476,7 @@ void owlTap(int x, int y) {
   owlEnter();
 }
 
-void owlTick() {
-  String j = ask("/api/owl");
-  long at = jsonNum(j, "replyAt");
-  if (at < 0) return;
-  if (owlSeen == -2) owlSeen = at;  // don't show an old letter when we open the page
-  if (at == owlSeen || at == 0) return;
-  owlSeen = at;
-  // Sparkle's owl flies in with a letter!
+void owlLetter(const String& text) {
   header("Owl Post", 0x7EC8FF);
   for (int x = 330; x > 136; x -= 10) {
     tft.fillRect(x, 50, 60, 52, rgb(0x7EC8FF));
@@ -485,10 +489,27 @@ void owlTick() {
   tft.drawRoundRect(20, 106, 280, 100, 10, rgb(0xB08A4A));
   tft.setTextColor(rgb(0x5A3412));
   tft.drawString("A letter from Sparkle:", 32, 112, 2);
-  wrapText(jsonStr(j, "reply"), 30, 136, 260, 4, rgb(0x1F4D2B));
+  wrapText(text, 30, 136, 260, 4, rgb(0x1F4D2B));
   tft.setTextColor(TFT_BLACK);
   tft.drawCentreString("Tap to write back", 160, 214, 2);
   owlReading = true;
+}
+
+void owlTick() {
+  String j = ask("/api/owl");
+  long at = jsonNum(j, "replyAt");
+  if (at < 0) {  // this Sparkle can't write back yet: deliver its kind note a little after our letter
+    if (owlSentAt && millis() - owlSentAt > 7000) {
+      owlSentAt = 0;
+      owlLetter(KIND_NOTES[random(KIND_COUNT)]);
+    }
+    return;
+  }
+  if (owlSeen == -2) owlSeen = at;  // don't show an old letter when we open the page
+  if (at == owlSeen || at == 0) return;
+  owlSeen = at;
+  owlSentAt = 0;
+  owlLetter(jsonStr(j, "reply"));  // Sparkle's owl flies in with a letter!
 }
 
 // ================= Wand Wave: the spell, big and colourful
@@ -546,6 +567,7 @@ const char* POTIONS[12] = {"MEOW! YOU'RE A CAT!", "PINK HAIR!", "YOU CAN FLY!", 
                            "YOU'RE INVISIBLE!", "YOU GLOW LIKE A STAR", "UNICORN HORN!", "SUPER SNEEZE! ACHOO",
                            "GIANT BUNNY EARS!", "YOU BREATHE FIRE!", "EVERYTHING TASTES SWEET"};
 int picks[3], pickCount = 0;
+int lastPotion = -1;
 uint8_t book[12][3];  // the recipe that first made each potion
 uint16_t bookFound = 0;
 int bookPage = -1;    // -1 = not reading the book
@@ -588,8 +610,9 @@ void potionEnter() {
     tft.setTextColor(in ? TFT_BLACK : TFT_WHITE);
     tft.drawCentreString(INGREDIENTS[i], x + 36, y + 40, 2);
   }
-  char buf[32];
-  snprintf(buf, sizeof(buf), pickCount < 3 ? "Pick %d more!" : "Shake Sparkle to stir!", 3 - pickCount);
+  char buf[48];
+  if (pickCount < 3 && lastPotion >= 0 && pickCount == 0) snprintf(buf, sizeof(buf), "Last potion: %s", POTIONS[lastPotion]);
+  else snprintf(buf, sizeof(buf), pickCount < 3 ? "Pick %d more!" : "Shake Sparkle to stir!", 3 - pickCount);
   bigText(buf, 172, TFT_YELLOW, 0x13261A, 2);
   tft.fillRoundRect(8, 198, 100, 36, 10, rgb(0x555555));
   tft.setTextColor(TFT_WHITE);
@@ -665,10 +688,16 @@ void potionTick() {
       for (int k = 0; k < 3; k++) book[p][k] = picks[k];
       saveBook();
     }
+    lastPotion = p;
     header("Potions", 0x6A1B9A);
-    for (int k = 0; k < 3; k++) icon(100 + k * 42, 44, INGREDIENT_ICONS[picks[k]], 32);
-    icon(136, 84, POTION, 48);
-    wrapText(POTIONS[p], 10, 140, 300, 4, TFT_YELLOW);
+    for (int k = 0; k < 3; k++) icon(60 + k * 36, 40, INGREDIENT_ICONS[picks[k]], 32);
+    tft.setTextColor(TFT_WHITE);
+    tft.drawString("=", 172, 48, 4);
+    icon(196, 34, POTION, 48);
+    tft.fillRoundRect(10, 88, 300, 110, 12, rgb(0x4A148C));
+    tft.setTextColor(TFT_WHITE);
+    tft.drawCentreString("Your potion:", 160, 94, 2);
+    wrapText(POTIONS[p], 16, 120, 288, 4, TFT_YELLOW);
     tft.setTextColor(TFT_WHITE);
     tft.drawCentreString(isNew ? "NEW recipe for your book!" : "Shake Sparkle to empty it", 160, 214, 2);
     fanfare();

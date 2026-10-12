@@ -185,5 +185,14 @@ The app greets her by her real name from `firmware/petbot_test/config.h` (`KID_N
   (`/api/screen?view=`) and shows a colour helper screen (house reveal, cam, score, hearts, letters, spells, ingredients,
   disco). No tap-to-sort: the action must happen on Sparkle (grown-up's rule). `cyd_sorting_hat` and `cyd_spycam` are the
   standalone versions.
+- [ ] **NEXT SESSION: flash + test (needs a working USB-C data cable for Sparkle; the old one died 2026-10-11)**
+  1. Flash Sparkle: `make flash-safe SKETCH=firmware/petbot_test` (scoreboard view `score` + `/api/score`, owl replies +
+     `kind_notes.h`, shake-to-reply). While it's plugged in, consider adding **Wi-Fi (OTA) updates** so cables stop blocking us.
+  2. Flash the CYD: `make cyd-flash CYD_SKETCH=firmware/cyd/cyd_menu` (built, not yet flashed).
+  3. Test on the CYD (bugs Megaspy + grown-up found):
+     - Snitch: claps on Sparkle must register (CYD now reads `/api/sound` peak > 1200); Sparkle shows scoreboard, win at 10.
+     - Owl Post: a letter back must appear on the CYD (real reply from new Sparkle; CYD fallback after 7 s for old Sparkle).
+     - Potions: potion name shown big on the result screen + "Last potion" line.
+     - Sorting Hat: house name + animal crest must show after a shake (fixed `hatRevealed` bug).
 - **Plan: final game menu.** When the experiments are done, take every ⭐ keeper in `IDEAS.md` and build a polished game
   menu on the web page. Keep the keeper code intact until then (don't refactor it away).
