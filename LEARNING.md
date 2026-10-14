@@ -31,7 +31,7 @@ The grown-up's idea: logic for playing with friends, always leading to a happy e
 - *"IF clap AND tilted THEN Lumos"*, *"IF NOT quiet THEN shh!"*
 
 ## Level 6: 🐞 Find the Bug
-- Claude writes a rule that's wrong on purpose (*"IF you catch the snitch THEN lose points"*?!) and she spies the
+- The AI writes a rule that's wrong on purpose (*"IF you catch the snitch THEN lose points"*?!) and she spies the
   mistake and fixes it. Spy + hacking + logic.
 
 Badges for each level go in `IDEAS.md`.

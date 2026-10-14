@@ -6,6 +6,7 @@ OLED, IMU), copied (with git history) from the `ai-petbot` repo on 2026-10-10. S
 
 She loves **unicorns, animals, spy stuff, a bit of hacking, and Harry Potter**.
 She goes by **Megaspy** (her handle, from the SIA spy game). The grown-up is credited as **DFIR-life** (parent & mentor).
+**Never credit Claude / Claude Code** anywhere public (READMEs, licences, repo descriptions or topics, commit messages, co-author lines).
 The project is credited to her: use "Megaspy", never her real name, in anything committed.
 The app greets her by her real name from `firmware/petbot_test/config.h` (`KID_NAME`, gitignored). Committed fallback and
 `config.h.example` say "Megaspy". Never write the real name into a tracked file.

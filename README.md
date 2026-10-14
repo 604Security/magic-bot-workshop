@@ -1,7 +1,7 @@
 # Magic Bot Workshop 🪄🤖
 
 **Created by Megaspy 🦄🕵️ (age 7)** with **[DFIR-life](https://github.com/DFIR-life)** (parent & mentor).
-All the ideas, names and picks are Megaspy's; DFIR-life and Claude did the typing.
+All the ideas, names and picks are Megaspy's; DFIR-life did the typing.
 
 A kid's **vibe coding** workshop: she dreams up ideas for her robot **Sparkle**, picks from moving pick-a-number
 pages, and watches them come alive on a Seeed XIAO ESP32S3 Sense (camera, mic, motion sensor, tiny OLED screen).
@@ -52,7 +52,7 @@ Code: [`firmware/cyd/cyd_menu`](firmware/cyd/cyd_menu). Pictures are made from N
 ## 🎨 How she decides: pick-a-number pages
 
 Every choice is a page of numbered, **moving** previews with a 🔊 button that reads it aloud. She says a number;
-Claude builds it.
+the AI builds it.
 
 | | |
 |:-:|:-:|
@@ -74,7 +74,7 @@ All the pages: [pickers/](pickers/). Her ideas, picks and badges: **[IDEAS.md](I
 cd ~/workstation/github/604Security/magic-bot-workshop
 claude
 ```
-Then type **`/sparkle`**. Claude checks the robot, opens its web page, and asks her for the next idea.
+Then type **`/sparkle`**. The assistant checks the robot, opens its web page, and asks her for the next idea.
 
 - Flash Sparkle: `make petbot-test` (or `make flash-safe SKETCH=firmware/petbot_test` with a flaky cable)
 - Flash the yellow screen: `make cyd-flash CYD_SKETCH=firmware/cyd/cyd_menu`

@@ -42,7 +42,7 @@ Tips:
 ## Software (all free)
 | Tool | Used for |
 |---|---|
-| **Claude Code** (AI coding assistant in the terminal) | Writes the code, builds the pick-a-number pages, flashes the boards |
+| **An AI coding assistant** (in the terminal) | Writes the code, builds the pick-a-number pages, flashes the boards |
 | **arduino-cli** 1.5 (+ Arduino IDE 2 optional) | Compiling and uploading |
 | **esp32 board package 2.0.17** by Espressif | Pinned on purpose: the Harvard/Edge Impulse ML labs need 2.0.x |
 | Libraries: **U8g2** (OLED), **TFT_eSPI** (CYD screen), **XPT2046_Touchscreen** (CYD touch), **TJpg_Decoder** (show photos on the CYD) | |
